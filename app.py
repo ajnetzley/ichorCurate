@@ -9,7 +9,6 @@ from streamlit_shortcuts import button, add_keyboard_shortcuts
 # Setting page formats
 st.set_page_config(layout="wide")
 
-
 # Title of the app
 st.title('IchorCurate')
 
@@ -33,7 +32,7 @@ def get_pdf_first_page_image(pdf_path):
     with fitz.open(pdf_path) as pdf:
         # Render the first page as an image
         first_page = pdf[0]
-        pix = first_page.get_pixmap()  # Render page to an image
+        pix = first_page.get_pixmap()  
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
     return img
 
@@ -53,7 +52,6 @@ with col_nav:
         if button("Next", "ArrowRight", None, hint=True) and st.session_state.pdf_index < len(pdf_files) - 1:
             st.session_state.pdf_index += 1
 
-
     # Display the current PDF as an image
     if pdf_files:
         current_pdf = pdf_files[st.session_state.pdf_index]
@@ -66,7 +64,7 @@ with col_nav:
         st.write(f"Showing Potential Solution {st.session_state.pdf_index + 1} of {len(pdf_files)}")
 
         # Button to set the current PDF as the solution
-        if st.button("Set as Solution"):
+        if button("Set as Solution", "Enter", None, hint=True):
             st.session_state.solution_pdf = current_pdf
     else:
         st.write("No PDF files found matching the pattern.")
