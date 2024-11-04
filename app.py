@@ -36,50 +36,51 @@ def get_pdf_first_page_image(pdf_path):
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
     return img
 
-# Layout: Split into two columns for navigation and solution display
-col_sol, col_nav = st.columns(2)
+# # Layout: Split into two columns for navigation and solution display
+# col_sol, col_nav = st.columns(2)
 
-# Navigation Controls Column
-with col_nav:
-    st.subheader("Potential Solutions")
-    # Display navigation buttons
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col1:
-        if button("Previous", "ArrowLeft", None, hint=True) and st.session_state.pdf_index > 0:
-            st.session_state.pdf_index -= 1
+# # Navigation Controls Column
+# with col_nav:
+st.subheader("Potential Solutions")
+# Display navigation buttons
+col1, col2, col3 = st.columns([1, 2, 1])
+with col1:
+    if button("Previous", "ArrowLeft", None, hint=True) and st.session_state.pdf_index > 0:
+        st.session_state.pdf_index -= 1
 
+with col2:
+    if button("Next", "ArrowRight", None, hint=True) and st.session_state.pdf_index < len(pdf_files) - 1:
+        st.session_state.pdf_index += 1
+
+# Display the current PDF as an image
+if pdf_files:
+    current_pdf = pdf_files[st.session_state.pdf_index]
+    file_path = os.path.join(pdf_directory, current_pdf)
+    pdf_image = get_pdf_first_page_image(file_path)
+
+    #st.subheader(f"Displaying {current_pdf}")
+    st.image(pdf_image, use_column_width=True)
+
+    st.write(f"Showing Potential Solution {st.session_state.pdf_index + 1} of {len(pdf_files)}")
+
+    # Button to set the current PDF as the solution
     with col3:
-        if button("Next", "ArrowRight", None, hint=True) and st.session_state.pdf_index < len(pdf_files) - 1:
-            st.session_state.pdf_index += 1
-
-    # Display the current PDF as an image
-    if pdf_files:
-        current_pdf = pdf_files[st.session_state.pdf_index]
-        file_path = os.path.join(pdf_directory, current_pdf)
-        pdf_image = get_pdf_first_page_image(file_path)
-
-        #st.subheader(f"Displaying {current_pdf}")
-        st.image(pdf_image, use_column_width=True)
-
-        st.write(f"Showing Potential Solution {st.session_state.pdf_index + 1} of {len(pdf_files)}")
-
-        # Button to set the current PDF as the solution
         if button("Set as Solution", "Enter", None, hint=True):
             st.session_state.solution_pdf = current_pdf
-    else:
-        st.write("No PDF files found matching the pattern.")
+else:
+    st.write("No PDF files found matching the pattern.")
 
-# Solution Display Column
-with col_sol:
-    st.subheader("Selected Solution")
-    if st.session_state.solution_pdf:
-        solution_path = os.path.join(pdf_directory, st.session_state.solution_pdf)
-        solution_image = get_pdf_first_page_image(solution_path)
-        st.write(f"Solution PDF: {st.session_state.solution_pdf}")
-        st.image(solution_image, use_column_width=True)
-        
-    else:
-        st.write("No solution selected.")
+# # Solution Display Column
+# with col_sol:
+st.subheader("Selected Solution")
+if st.session_state.solution_pdf:
+    solution_path = os.path.join(pdf_directory, st.session_state.solution_pdf)
+    solution_image = get_pdf_first_page_image(solution_path)
+    #st.write(f"Solution PDF: {st.session_state.solution_pdf}")
+    st.image(solution_image, use_column_width=True)
+    
+else:
+    st.write("No solution selected.")
 
 ################################################
 ### CODE FOR UPLOADING AND DISPLAYING A PDF ###
