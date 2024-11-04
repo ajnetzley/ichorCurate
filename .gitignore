@@ -1,3 +1,4 @@
 .streamlit\n__pycache__/\n*.pyc\n*.pyo\n.env
 *.ipynb
 test_app.py
+*.R

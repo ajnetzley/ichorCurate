@@ -5,6 +5,7 @@ import pandas as pd
 import os
 from PIL import Image
 from streamlit_shortcuts import button, add_keyboard_shortcuts
+import re
 
 # Setting page formats
 st.set_page_config(layout="wide")
@@ -12,14 +13,23 @@ st.set_page_config(layout="wide")
 # Title of the app
 st.title('IchorCurate')
 
+################################
+### LOADING IN THE PDF FILES ###
+################################
 # Specify the directory containing your PDFs
 pdf_directory = "../IchorCNA/521R02_B01_CFFv2_ND0814_S2/"
 
-# Load up to 10 PDFs containing "genomeWide_n" and ending with ".pdf"
-pdf_files = [
+# Load the PDFs containing "genomeWide_n" and ending with ".pdf"
+genome_wide_pdf_files = [
     f for f in os.listdir(pdf_directory)
     if "genomeWide_n" in f and f.endswith(".pdf")
 ]
+
+# Load the PDFs containing the per-chromosome plots
+chromosome_pdf_files = sorted([
+    f for f in os.listdir(pdf_directory)
+    if "CNA_chrchr" in f and f.endswith(".pdf")
+])
 
 # State for tracking which PDF is currently displayed
 if "pdf_index" not in st.session_state:
@@ -36,8 +46,22 @@ def get_pdf_first_page_image(pdf_path):
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
     return img
 
-# # Layout: Split into two columns for navigation and solution display
+# Function to extract chromosome number from filename
+def extract_chromosome_number(file_name):
+    match = re.search(r'(\d+)\.pdf$', file_name)
+    return int(match.group(1)) if match else float('inf')  # Default to 'inf' if no number is found
+
+
+
+##################
+### APP LAYOUT ###
+##################
 # col_sol, col_nav = st.columns(2)
+
+
+#########################################
+### Potential Solutions - Genome-Wide ###
+#########################################
 
 # # Navigation Controls Column
 # with col_nav:
@@ -49,19 +73,19 @@ with col1:
         st.session_state.pdf_index -= 1
 
 with col2:
-    if button("Next", "ArrowRight", None, hint=True) and st.session_state.pdf_index < len(pdf_files) - 1:
+    if button("Next", "ArrowRight", None, hint=True) and st.session_state.pdf_index < len(genome_wide_pdf_files) - 1:
         st.session_state.pdf_index += 1
 
 # Display the current PDF as an image
-if pdf_files:
-    current_pdf = pdf_files[st.session_state.pdf_index]
+if genome_wide_pdf_files:
+    current_pdf = genome_wide_pdf_files[st.session_state.pdf_index]
     file_path = os.path.join(pdf_directory, current_pdf)
     pdf_image = get_pdf_first_page_image(file_path)
 
     #st.subheader(f"Displaying {current_pdf}")
     st.image(pdf_image, use_column_width=True)
 
-    st.write(f"Showing Potential Solution {st.session_state.pdf_index + 1} of {len(pdf_files)}")
+    st.write(f"Showing Potential Solution {st.session_state.pdf_index + 1} of {len(genome_wide_pdf_files)}")
 
     # Button to set the current PDF as the solution
     with col3:
@@ -70,7 +94,36 @@ if pdf_files:
 else:
     st.write("No PDF files found matching the pattern.")
 
-# # Solution Display Column
+############################################
+### Potential Solutions - Per-Chromosome ###
+############################################
+# Chromosome-specific PDF selection
+st.subheader("View Chromosome PDFs")
+cols = st.columns(11)
+
+# Display checkboxes across the columns
+selected_chromosomes = []
+for i, pdf_file in enumerate(chromosome_pdf_files):
+    chrom_number = extract_chromosome_number(pdf_file)  # Extract chromosome number from filename
+    checkbox_label = f"{chrom_number}"
+    with cols[i % 11]:  # Distribute checkboxes across columns
+        if st.checkbox(checkbox_label):
+            selected_chromosomes.append(pdf_file)
+
+
+# Display each selected chromosome PDF
+# Display selected PDFs
+for pdf_file in selected_chromosomes:
+    pdf_path = os.path.join(pdf_directory, pdf_file)
+    if os.path.exists(pdf_path):
+        chrom_pdf_image = get_pdf_first_page_image(pdf_path)
+        st.image(chrom_pdf_image, caption=f"Chromosome {extract_chromosome_number(pdf_file)}", use_column_width=True)
+    else:
+        st.write(f"Chromosome {extract_chromosome_number(pdf_file)} PDF not found.")
+
+########################################
+### Selected Solutions - Genome-Wide ###
+########################################
 # with col_sol:
 st.subheader("Selected Solution")
 if st.session_state.solution_pdf:
@@ -82,48 +135,4 @@ if st.session_state.solution_pdf:
 else:
     st.write("No solution selected.")
 
-################################################
-### CODE FOR UPLOADING AND DISPLAYING A PDF ###
-################################################
-# File uploader to upload PDF files
-# uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
-
-# if uploaded_file is not None:
-#     # Display the uploaded PDF
-#     with fitz.open(stream=uploaded_file.read(), filetype="pdf") as pdf_document:
-#         num_pages = pdf_document.page_count
-        
-#         # Display the number of pages in the PDF
-#         st.write(f"Total pages: {num_pages}")
-        
-#         # Loop through all the pages and render them
-#         for page_number in range(num_pages):
-#             page = pdf_document.load_page(page_number)
-#             pix = page.get_pixmap()
-            
-#             # Convert pixmap to image
-#             image = pix.tobytes("png")
-#             st.image(image, caption=f"Solution {page_number + 1}", use_column_width=True)
-
-################################################
-### CODE FOR READING IN DATA AND PLOTTING IT ###
-################################################
-# # Sample data)
-# segment_data = pd.read_csv('../IchorCNA/output/521R02_B01_CFFv2_ND0814_S2.cna.seg', sep='\t')
-# x = segment_data['521R02_B01_CFFv2_ND0814_S2.logR'].values
-# # copyNumberStates = np.array([1,2,3,4,5])
-# # K = len(copyNumberStates)
-
-# # plt.figure(figsize=(14,6))
-# # plt.plot(x, marker='o', linestyle='None')
-# # plt.title('Copy Number Alteration')
-# # plt.ylabel('Copy Number (Log2 Ratio)')
-# # plt.xlabel('Position')
-# # plt.ylim([-2, 2])
-
-# # Create a Plotly figure
-# fig = px.scatter(segment_data, x='start', y='521R02_B01_CFFv2_ND0814_S2.logR', title='Copy Number Alteration')
-
-# # Display the figure in Streamlit
-# st.plotly_chart(fig)
 
