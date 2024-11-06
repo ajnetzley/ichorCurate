@@ -2,3 +2,4 @@
 *.ipynb
 test_app.py
 *.R
+**/__pycache__/
