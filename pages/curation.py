@@ -4,7 +4,7 @@ v1.0.0, 11/6/2024
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
-This module provides a the main logic for the curation page of the IchorCurate app.
+This module provides the main logic for the curation page of the IchorCurate app.
 """
 
 # Import packages
@@ -32,7 +32,7 @@ def display():
         sample_name = st.session_state.selected_sample
 
         # Specify the directory containing your PDFs
-        pdf_directory = os.path.join("../IchorCNA/", sample_name)#521R02_B01_CFFv2_ND0814_S2/"
+        pdf_directory = os.path.join("../IchorCNA/", sample_name)
 
         # Load the PDFs containing "genomeWide_n" and ending with ".pdf"
         genome_wide_pdf_files = [
