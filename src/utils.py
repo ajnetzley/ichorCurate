@@ -34,5 +34,5 @@ def extract_chromosome_number(file_name):
         elif chromosome.upper() == 'X':
             return 23  # Place X after 22
         elif chromosome.upper() == 'Y':
-            return 24  # Place Y after X
+            return 24  # Place Y after X #TODO Check if this is relevant
     return float('inf')  # Default to 'inf' if no match is found to push unrecognized items to the end
