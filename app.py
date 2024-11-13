@@ -21,9 +21,20 @@ st.set_page_config(layout="wide")
 # Title of the app
 st.title('IchorCurate')
 
-page = st.sidebar.selectbox("Menu:", ["Tracker Dashboard", "Curation"])
+# Initialize page in session state if it doesn't exist
+if "page" not in st.session_state:
+    st.session_state.page = "Tracker Dashboard"
 
-if page == "Tracker Dashboard":
+# Sidebar navigation with automatic selection
+st.sidebar.title("Navigation")
+page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1)
+
+# Check and update the current page
+if page != st.session_state.page:
+    st.session_state.page = page  # Sync sidebar selection with session state
+
+# Display the page
+if st.session_state.page == "Tracker Dashboard":
     tracker_dashboard_display()
-elif page == "Curation":
+elif st.session_state.page == "Curation":
     curation_display()
