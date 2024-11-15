@@ -25,6 +25,10 @@ st.title('IchorCurate')
 if "page" not in st.session_state:
     st.session_state.page = "Tracker Dashboard"
 
+# Initialize curated solutions in session state if it doesn't exist
+if "curated_solutions" not in st.session_state:
+    st.session_state.curated_solutions = {}
+
 # Sidebar navigation with automatic selection
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1)

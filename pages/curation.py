@@ -152,10 +152,11 @@ def display():
         if button("Select as Curated Solution", "Ctrl+Enter", None, hint=True):
 
             # Save the selected solution in session state
-            st.session_state.curated_solution = {
-                "sample": sample_name,
-                "solution": st.session_state.solution_pdf,
-            }
+            # st.session_state.curated_solution = {
+            #     "sample": sample_name,
+            #     "solution": st.session_state.solution_pdf,
+            # }
+            st.session_state.curated_solutions[sample_name] = st.session_state.solution_pdf
 
             st.session_state.page = "Tracker Dashboard" # Navigate back to the tracker dashboard
             st.rerun()  # Refresh the app to load the tracker dashboard page
