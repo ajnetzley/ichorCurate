@@ -16,14 +16,14 @@ def display():
     st.subheader("Tracker Dashboard")
 
     # Create a button for each sample in the data directory
-    base_sample_directory = "../IchorCNA/"
+    base_sample_directory = "test_data/"
 
-    # Matching pattern (subfolders that start with a number), #TODO adjust as necessary to accomodate sample folder names
-    sample_folder_pattern = re.compile(r'^\d+')
+    #TODO update to just read folder names
+    #TODO incorporate some way to upload a folder?
 
     sample_folders = [
         f for f in os.listdir(base_sample_directory) 
-        if os.path.isdir(os.path.join(base_sample_directory, f)) and sample_folder_pattern.match(f)
+        if os.path.isdir(os.path.join(base_sample_directory, f))
         ]
     
     # Placeholder for the table layout

@@ -20,44 +20,41 @@ def display():
     Main wrapper for the curation page display.
     """
 
-    ################################
-    ### LOADING IN THE PDF FILES ###
-    ################################
-
     # Extract the sample name that was chosen to navigate here
     if "selected_sample" not in st.session_state:
         st.write("No sample selected, return to Tracker Dashboard and select a sample to curate.")
     
     else:
+        ############################
+        ### LOADING IN THE FILES ###
+        ############################
         sample_name = st.session_state.selected_sample
 
-        # Specify the directory containing your PDFs
-        pdf_directory = os.path.join("../IchorCNA/", sample_name)
-
+        # Specify the directory containing the genome-wdie PDFs
+        genome_wide_directory = os.path.join("test_data/", sample_name, sample_name)
+        
         # Load the PDFs containing "genomeWide_n" and ending with ".pdf"
         genome_wide_pdf_files = [
-            f for f in os.listdir(pdf_directory)
+            f for f in os.listdir(genome_wide_directory)
             if "genomeWide_n" in f and f.endswith(".pdf")
         ]
 
-        # Load the PDFs containing the per-chromosome plots
-        chromosome_pdf_files = sorted([
-            f for f in os.listdir(pdf_directory)
-            if "CNA_chrchr" in f and f.endswith(".pdf")
-        ], key=extract_chromosome_number)
+        # Loop through the directory and load and store the PDFs names of the per-chromosome plots
+        for solution, _, files in os.walk(genome_wide_directory):
+            # Extract the chromosome files
+            chromosome_pdf_files = sorted([
+                f for f in files
+                if "CNA_chrchr" in f and f.endswith(".pdf")
+            ], key=extract_chromosome_number)
 
+            if chromosome_pdf_files:
+                continue #Since all the chromosome plots have the same file name, we only need to find one solution to create the list
 
         # State for tracking which PDF is currently displayed
         if "pdf_index" not in st.session_state:
             st.session_state.pdf_index = 0
         if "solution_pdf" not in st.session_state:
             st.session_state.solution_pdf = None
-
-        ##################
-        ### APP LAYOUT ###
-        ##################
-        # col_sol, col_nav = st.columns(2)
-
 
         #########################################
         ### Potential Solutions - Genome-Wide ###
@@ -80,7 +77,8 @@ def display():
         # Display the current PDF as an image
         if genome_wide_pdf_files:
             current_pdf = genome_wide_pdf_files[st.session_state.pdf_index]
-            file_path = os.path.join(pdf_directory, current_pdf)
+            st.session_state.current_pdf = current_pdf
+            file_path = os.path.join(genome_wide_directory, current_pdf)
             pdf_image = get_pdf_first_page_image(file_path)
 
             #st.subheader(f"Displaying {current_pdf}")
@@ -93,46 +91,17 @@ def display():
                 if button("Set as Selected Solution", "Enter", None, hint=True):
                     st.session_state.solution_pdf = current_pdf
         else:
-            st.write("No PDF files found matching the pattern.")
+            st.write("No Genome-Wide PDF files found.")
 
         ############################################
         ### Potential Solutions - Per-Chromosome ###
         ############################################
-        # Chromosome-specific PDF selection)
-        cols = st.columns(23)
-
-        # Display checkboxes across the columns
-        selected_chromosomes = []
-        for i, pdf_file in enumerate(chromosome_pdf_files):
-            chrom_number = extract_chromosome_number(pdf_file)  # Extract chromosome number from filename
-            if chrom_number == 23:
-                chrom_number = "X"
-            elif chrom_number == 24:
-                chrom_number = "Y"
-            checkbox_label = f"{chrom_number}"
-            with cols[i % 23]:  # Distribute checkboxes across columns
-                if st.checkbox(checkbox_label):
-                    selected_chromosomes.append(pdf_file)
-
+        # Display checkboxes for each chromosome, and allow selecting
+        selected_chromosomes, solution_folder_name = select_chromosomes("current", st.session_state.current_pdf, genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
 
         # Display selected PDFs in horizontal layout
         if selected_chromosomes:
-            if len(selected_chromosomes) == 1:
-                pdf_path = os.path.join(pdf_directory, selected_chromosomes[0])
-                if os.path.exists(pdf_path):
-                    chrom_pdf_image = get_pdf_first_page_image(pdf_path)
-                    st.image(chrom_pdf_image, caption=f"Chromosome {extract_chromosome_number(selected_chromosomes[0])}", use_container_width=True)
-
-            else:
-                display_cols = st.columns(len(selected_chromosomes))  # Create one column per selected PDF
-
-                for col, pdf_file in zip(display_cols, selected_chromosomes):
-                    pdf_path = os.path.join(pdf_directory, pdf_file)
-                    if os.path.exists(pdf_path):
-                        chrom_pdf_image = get_pdf_first_page_image(pdf_path)
-                        col.image(chrom_pdf_image)#, caption=f"Chromosome {extract_chromosome_number(pdf_file)[0]}", use_container_width=True)    
-                    else:
-                        st.write(f"Chromosome {extract_chromosome_number(pdf_file)} PDF not found.")
+            display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_folder_name, sample_name)
 
         ########################################
         ### Selected Solutions - Genome-Wide ###
@@ -140,7 +109,7 @@ def display():
         # with col_sol:
         st.subheader("Selected Solution")
         if st.session_state.solution_pdf:
-            solution_path = os.path.join(pdf_directory, st.session_state.solution_pdf)
+            solution_path = os.path.join(genome_wide_directory, st.session_state.solution_pdf)
             solution_image = get_pdf_first_page_image(solution_path)
             #st.write(f"Solution PDF: {st.session_state.solution_pdf}")
             st.image(solution_image, use_container_width=True)
@@ -148,13 +117,27 @@ def display():
         else:
             st.write("No solution selected.")
 
+        ###########################################
+        ### Selected Solutions - Per-Chromosome ###
+        ###########################################
+        if st.session_state.solution_pdf:
+            # Display checkboxes for each chromosome, and allow selecting
+            selected_chromosomes, solution_folder_name = select_chromosomes("selected", st.session_state.solution_pdf, genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
+
+            # Display selected PDFs in horizontal layout
+            if selected_chromosomes:
+                display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_folder_name, sample_name)
+
+        ###################################
+        ### Selected Solutions - Curate ###
+        ###################################
         # Write selected solution, and return to dashboard page
         if button("Select as Curated Solution", "Ctrl+Enter", None, hint=True):
 
             # Save the selected solution in session state
             # st.session_state.curated_solution = {
             #     "sample": sample_name,
-            #     "solution": st.session_state.solution_pdf,
+            #     "solution": st.session_state.solution_pdf,te
             # }
             st.session_state.curated_solutions[sample_name] = st.session_state.solution_pdf
 
