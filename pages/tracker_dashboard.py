@@ -25,79 +25,49 @@ def display():
         f for f in os.listdir(base_sample_directory) 
         if os.path.isdir(os.path.join(base_sample_directory, f))
         ]
-    
-    # Placeholder for the table layout
-    table = []
 
+    # Table headers
+    cols = st.columns([3, 3, 2])  # Adjust column width ratios
+    with cols[0]:
+        st.write("**Sample**")
+    with cols[1]:
+        st.write("**Curated Solution**")
+    with cols[2]:
+        st.write("**Export**")
 
     #Display a button for each sample folder, navigate to curation page when clicked
     for sample in sample_folders:
-        curated_solution = None
         
         # Check if the sample has a curated solution
-        if "curated_solutions" in st.session_state and sample in st.session_state.curated_solutions:
-            curated_solution = st.session_state.curated_solutions[sample]
-
+        curated_solution = (
+            st.session_state.curated_solutions[sample]
+            if "curated_solutions" in st.session_state and sample in st.session_state.curated_solutions
+            else None
+        )
 
         # Create a row
-        row = {}
-        
-        # Column 1: Sample Button
-        button_clicked = st.button(sample)
-        if button_clicked:
-            # Store selected sample in session state and navigate to Curation Page
-            st.session_state.selected_sample = sample
-            st.session_state.page = "Curation"  # Trigger automatic navigation
-            st.rerun()  # Refresh the app to load the curation page
+        cols = st.columns([3, 3, 2])
 
-        row['Sample'] = button_clicked
+        # Column 1: Sample Button
+        with cols[0]:
+            if st.button(sample, key=f"sample_{sample}"):
+                # Store selected sample in session state and navigate to Curation Page
+                st.session_state.selected_sample = sample
+                st.session_state.page = "Curation"  # Trigger automatic navigation
+                st.rerun()  # Refresh the app to load the curation page
 
         # Column 2: Curated Solution
-        if curated_solution:
-            # Display a green letters and solution name
-            # row['Curated Solution'] = st.markdown(f"""
-            #     <style>
-            #     .curated-button {{
-            #         background-color: #28a745 !important; /* Green */
-            #         color: white !important;            /* White text */
-            #         border: 1px solid #e0e0e0;
-            #         padding: 0.25rem 0.75rem;
-            #         border-radius: 0.25rem;
-            #         font-size: 18px;
-            #         text-align: center;
-            #         display: inline-block;
-            #         cursor: not-allowed;
-            #         width: 50%; /* Ensures consistency with Streamlit buttons */
-            #         box-sizing: border-box; /* Ensure padding doesn't affect width */
-            #     }}
-            #     </style>
-            #     <div class="curated-button">
-            #         Selected: {curated_solution[-11:-4]}
-            #     </div>
-            # """, unsafe_allow_html=True)
-            row['Curated Solution'] = f"Selected: {curated_solution[-11:-4]}"
-        else:
-            row['Curated Solution'] = None
-        
-        # Column 3: Export Button
-        if curated_solution:
-            export_button = st.button(f"Export {sample}", key=f"export_{sample}")
-            row['Export'] = export_button
-            if export_button:
-                st.write(f"Exporting solution for {sample}...")  # Placeholder for export functionality
-        else:
-            row['Export'] = None
-
-        table.append(row)
-
-    # Now display the table-like layout using columns
-    for row in table:
-        cols = st.columns([3, 3, 3])
-        with cols[0]:
-            if row['Sample']:
-                st.write("Sample Selected")
         with cols[1]:
-            st.write(row['Curated Solution'])
+            if curated_solution:
+                # Display a green letters and solution name
+                st.success(f"Selected: {curated_solution[-11:-4]}")
+            else:
+                st.write("No solution curated yet")
+
+        # Column 3: Export Button
         with cols[2]:
-            if row['Export']:
-                st.write("Export Button Clicked")
+            if curated_solution:
+                if st.button(f"Export {sample}", key=f"export_{sample}"):
+                    st.write(f"Exporting solution for {sample}...")  # Placeholder for export functionality
+            else:
+                st.write("")  # Placeholder for empty cell
