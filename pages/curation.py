@@ -1,6 +1,6 @@
 """
 curation.py
-v1.0.0, 11/6/2024
+v0.1.0, 11/6/2024
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 

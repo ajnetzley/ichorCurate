@@ -1,10 +1,10 @@
 """
-curation.py
-v1.0.0, 11/6/2024
+tracker_dashboard.py
+v0.1.0, 11/6/2024
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
-This module provides a the main logic for the curation page of the IchorCurate app.
+This module provides the main logic for the tracker dashboard page of the IchorCurate app.
 """
 
 # Import packages
