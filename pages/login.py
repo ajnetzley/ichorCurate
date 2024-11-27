@@ -9,8 +9,6 @@ This module provides the logic for the entry login page of the IchorCurate app.
 
 # Import packages
 import streamlit as st
-import os
-import re
 
 def display():
     st.title("Login Page")
@@ -26,6 +24,9 @@ def display():
             st.session_state.username = username
             st.session_state.logged_in = True
             st.success(f"Welcome, {username}!")
+
+            # Redirect to Tracker Dashboard
+            st.session_state.page = "Tracker Dashboard"
             st.rerun()  # Refresh app to redirect after login
         else:
             st.error("Please enter your name.")

@@ -31,10 +31,6 @@ if not st.session_state.logged_in:
     login_display()
 
 else:
-    # Initialize page in session state if it doesn't exist
-    if "page" not in st.session_state:
-        st.session_state.page = "Tracker Dashboard"
-
     # Initialize curated solutions in session state if it doesn't exist
     if "curated_solutions" not in st.session_state:
         st.session_state.curated_solutions = {}

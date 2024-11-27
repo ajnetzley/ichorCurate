@@ -27,12 +27,14 @@ def display():
         ]
 
     # Table headers
-    cols = st.columns([3, 3, 2])  # Adjust column width ratios
+    cols = st.columns([3, 2, 2, 2])  # Adjust column width ratios
     with cols[0]:
         st.write("**Sample**")
     with cols[1]:
         st.write("**Curated Solution**")
     with cols[2]:
+        st.write("**User**")
+    with cols[3]:
         st.write("**Export**")
 
     #Display a button for each sample folder, navigate to curation page when clicked
@@ -46,7 +48,7 @@ def display():
         )
 
         # Create a row
-        cols = st.columns([3, 3, 2])
+        cols = st.columns([3, 2, 2, 2])
 
         # Column 1: Sample Button
         with cols[0]:
@@ -62,12 +64,23 @@ def display():
                 # Display a green letters and solution name
                 st.success(f"Selected: {curated_solution[-11:-4]}")
             else:
-                st.write("No solution curated yet")
+                st.write("")
 
-        # Column 3: Export Button
+        # Column 3: User
         with cols[2]:
+            if curated_solution:
+                # Display a green letters and solution name
+                st.success(f"Curated by: {st.session_state.username}")
+            else:
+                st.write("")
+
+        # Column 4: Export Button
+        with cols[3]:
             if curated_solution:
                 if st.button(f"Export {sample}", key=f"export_{sample}"):
                     st.write(f"Exporting solution for {sample}...")  # Placeholder for export functionality
             else:
                 st.write("")  # Placeholder for empty cell
+
+        # Add a divider to separate rows
+        st.divider()
