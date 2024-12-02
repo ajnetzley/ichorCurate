@@ -24,9 +24,6 @@ def display():
             st.session_state.username = username
             st.session_state.logged_in = True
             st.success(f"Welcome, {username}!")
-
-            # Redirect to Tracker Dashboard
-            st.session_state.page = "Tracker Dashboard"
             st.rerun()  # Refresh app to redirect after login
         else:
             st.error("Please enter your name.")

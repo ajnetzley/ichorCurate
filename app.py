@@ -14,6 +14,7 @@ import streamlit as st
 from pages.curation import display as curation_display
 from pages.tracker_dashboard import display as tracker_dashboard_display
 from pages.login import display as login_display
+from pages.folder_selection import display as folder_selection_display
 from src.utils import *
 
 # Setting page formats
@@ -29,6 +30,10 @@ if "logged_in" not in st.session_state:
 # Redirect the user to the login page if they are not logged in
 if not st.session_state.logged_in:
     login_display()
+
+# Redirect the user to the folder selection page if they have not selected a folder
+elif "selected_folder" not in st.session_state:
+    folder_selection_display()
 
 else:
     # Initialize curated solutions in session state if it doesn't exist

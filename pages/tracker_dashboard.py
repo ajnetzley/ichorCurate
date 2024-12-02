@@ -90,8 +90,8 @@ def display():
                     if st.button(f"Export {sample}", key=f"export_{sample}_{users[i]}"):
                         st.write(f"Exported solution for {solutions[i][-11:-4]} for {sample}")
 
-                        export(sample, solutions[i][-11:-4], base_sample_directory)
-                        
+                        export(sample, solutions[i][-11:-4], base_sample_directory, st.session_state.output_path)
+
         else:
             # Create a row
             cols = st.columns([3, 2, 2, 2])

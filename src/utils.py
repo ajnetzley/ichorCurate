@@ -100,14 +100,14 @@ def display_chromosome_plots(selected_chromosomes, genome_wide_directory, soluti
 
 
 # Function to export the curated solution
-def export(sample, solution, base_sample_directory):
-    # Create the output directory if it doesn't exist
-    os.makedirs("curated_solutions", exist_ok=True) # TODO update to a manual entry to specify output location
+def export(sample, solution, base_sample_directory, output_directory):
+    # Create the output directory if it doesn't exist # TODO I feel like this won't work if the output path is relative vs gloabl, need to double check this
+    os.makedirs(output_directory, exist_ok=True) # TODO update to a manual entry to specify output location
 
     #Overwrite existing soltuion if it exists
-    if os.path.exists(os.path.join("curated_solutions", sample)):
-        shutil.rmtree(os.path.join("curated_solutions", sample))
-    os.makedirs(os.path.join("curated_solutions", sample), exist_ok=True)
+    if os.path.exists(os.path.join(output_directory, sample)):
+        shutil.rmtree(os.path.join(output_directory, sample))
+    os.makedirs(os.path.join(output_directory, sample), exist_ok=True)
 
     # Copy the curated solution to the output directory
     for root, dirs, files in os.walk(base_sample_directory + sample):
@@ -115,7 +115,7 @@ def export(sample, solution, base_sample_directory):
         # Copy everything from the first layer
         if root[len(base_sample_directory + sample):].count(os.sep) == 0:
             for file in files:
-                shutil.copy(os.path.join(root, file), os.path.join("curated_solutions", sample))
+                shutil.copy(os.path.join(root, file), os.path.join(output_directory, sample))
 
         # For deeper layers, copy only the curated solution
         elif root[len(base_sample_directory + sample):].count(os.sep) == 1:
@@ -123,12 +123,12 @@ def export(sample, solution, base_sample_directory):
             #Copy over the genome-wide plot for the selected solution
             for file in files:
                 if solution in file:
-                    shutil.copy(os.path.join(root, file), os.path.join("curated_solutions", sample))
+                    shutil.copy(os.path.join(root, file), os.path.join(output_directory, sample))
 
             #Copy over the rest of the data for that solution
             for directory in dirs:
                 if solution.replace("-", "_") in directory:
-                    shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join("curated_solutions", sample), directory))
+                    shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, sample), directory))
 
 
 
