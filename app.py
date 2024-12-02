@@ -35,6 +35,10 @@ else:
     if "curated_solutions" not in st.session_state:
         st.session_state.curated_solutions = {}
 
+    # Initialize visualization state in session state if it doesn't exist
+    if "visualization" not in st.session_state:
+        st.session_state.visualization = {}
+
     # Sidebar navigation with automatic selection
     st.sidebar.title("Navigation")
     page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1)

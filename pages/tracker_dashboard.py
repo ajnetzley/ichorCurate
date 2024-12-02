@@ -47,40 +47,57 @@ def display():
             else None
         )
 
-        # Create a row
-        cols = st.columns([3, 2, 2, 2])
+        #Extract the users and curated solutions, if curation has been performed
+        if curated_solution:
+            users = list(st.session_state.curated_solutions[sample].keys())
+            solutions = list((st.session_state.curated_solutions[sample].values()))
+            num_curations = len(users)
+        else:
+            num_curations = 0
 
-        # Column 1: Sample Button
-        with cols[0]:
-            if st.button(sample, key=f"sample_{sample}"):
-                # Store selected sample in session state and navigate to Curation Page
-                st.session_state.selected_sample = sample
-                st.session_state.page = "Curation"  # Trigger automatic navigation
-                st.rerun()  # Refresh the app to load the curation page
+        # Display the sample, curated solution, user, and export button for curated solutions
+        if curated_solution:
+            for i in range(num_curations):
+                # Create a row
+                cols = st.columns([3, 2, 2, 2])
 
-        # Column 2: Curated Solution
-        with cols[1]:
-            if curated_solution:
-                # Display a green letters and solution name
-                st.success(f"Selected: {curated_solution[-11:-4]}")
-            else:
-                st.write("")
+                # Column 1: Sample Button
+                with cols[0]:
+                    if i == 0:
+                        if st.button(sample, key=f"sample_{sample}_{users[i]}"):
+                            # Store selected sample in session state and navigate to Curation Page
+                            st.session_state.selected_sample = sample
+                            st.session_state.page = "Curation"  # Trigger automatic navigation
+                            st.rerun()  # Refresh the app to load the curation page
+                        else:
+                            st.write("")
 
-        # Column 3: User
-        with cols[2]:
-            if curated_solution:
-                # Display a green letters and solution name
-                st.success(f"Curated by: {st.session_state.username}")
-            else:
-                st.write("")
+                # Column 2: Curated Solution
+                with cols[1]:
+                    # Display a green letters and solution name
+                    st.success(f"Selected: {solutions[i][-11:-4]}")
 
-        # Column 4: Export Button
-        with cols[3]:
-            if curated_solution:
-                if st.button(f"Export {sample}", key=f"export_{sample}"):
-                    st.write(f"Exporting solution for {sample}...")  # Placeholder for export functionality
-            else:
-                st.write("")  # Placeholder for empty cell
+                # Column 3: User
+                with cols[2]:
+                    # Display a green letters and solution name
+                    st.success(f"Curated by: {users[i]}")
+
+                # Column 4: Export Button
+                with cols[3]: 
+                    if st.button(f"Export {sample}", key=f"export_{sample}_{users[i]}"):
+                        st.write(f"Exporting solution for {sample}...")  # Placeholder for export functionality
+        
+        else:
+            # Create a row
+            cols = st.columns([3, 2, 2, 2])
+
+            # Column 1: Sample Button
+            with cols[0]:
+                if st.button(sample, key=f"sample_{sample}"):
+                    # Store selected sample in session state and navigate to Curation Page
+                    st.session_state.selected_sample = sample
+                    st.session_state.page = "Curation"
+                    st.rerun()  # Refresh the app to load the curation page
 
         # Add a divider to separate rows
         st.divider()
