@@ -12,6 +12,9 @@ import streamlit as st
 import os
 import re
 
+# Import user modules
+from src.utils import export
+
 def display():
     st.subheader("Tracker Dashboard")
 
@@ -85,8 +88,10 @@ def display():
                 # Column 4: Export Button
                 with cols[3]: 
                     if st.button(f"Export {sample}", key=f"export_{sample}_{users[i]}"):
-                        st.write(f"Exporting solution for {sample}...")  # Placeholder for export functionality
-        
+                        st.write(f"Exported solution for {solutions[i][-11:-4]} for {sample}")
+
+                        export(sample, solutions[i][-11:-4], base_sample_directory)
+                        
         else:
             # Create a row
             cols = st.columns([3, 2, 2, 2])

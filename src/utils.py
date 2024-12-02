@@ -13,6 +13,7 @@ from PIL import Image
 import re
 import streamlit as st
 import os
+import shutil
 
 # Function to get the first page as an image from a PDF
 def get_pdf_first_page_image(pdf_path):
@@ -95,5 +96,39 @@ def display_chromosome_plots(selected_chromosomes, genome_wide_directory, soluti
                 col.image(chrom_pdf_image)#, caption=f"Chromosome {extract_chromosome_number(pdf_file)[0]}", use_container_width=True)    
             else:
                 st.write(f"Chromosome {extract_chromosome_number(pdf_file)} PDF not found.")
+
+
+
+# Function to export the curated solution
+def export(sample, solution, base_sample_directory):
+    # Create the output directory if it doesn't exist
+    os.makedirs("curated_solutions", exist_ok=True) # TODO update to a manual entry to specify output location
+
+    #Overwrite existing soltuion if it exists
+    if os.path.exists(os.path.join("curated_solutions", sample)):
+        shutil.rmtree(os.path.join("curated_solutions", sample))
+    os.makedirs(os.path.join("curated_solutions", sample), exist_ok=True)
+
+    # Copy the curated solution to the output directory
+    for root, dirs, files in os.walk(base_sample_directory + sample):
+
+        # Copy everything from the first layer
+        if root[len(base_sample_directory + sample):].count(os.sep) == 0:
+            for file in files:
+                shutil.copy(os.path.join(root, file), os.path.join("curated_solutions", sample))
+
+        # For deeper layers, copy only the curated solution
+        elif root[len(base_sample_directory + sample):].count(os.sep) == 1:
+
+            #Copy over the genome-wide plot for the selected solution
+            for file in files:
+                if solution in file:
+                    shutil.copy(os.path.join(root, file), os.path.join("curated_solutions", sample))
+
+            #Copy over the rest of the data for that solution
+            for directory in dirs:
+                if solution.replace("-", "_") in directory:
+                    shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join("curated_solutions", sample), directory))
+
 
 
