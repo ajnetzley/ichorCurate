@@ -44,6 +44,10 @@ else:
     if "visualization" not in st.session_state:
         st.session_state.visualization = {}
 
+    #Direct users to the tracker dashboard unless curation has been specified
+    if "page" not in st.session_state:
+        st.session_state.page = "Tracker Dashboard"
+
     # Sidebar navigation with automatic selection
     st.sidebar.title("Navigation")
     page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1)
@@ -52,7 +56,9 @@ else:
     if st.sidebar.button("Logout"):
         st.session_state.logged_in = False
         st.session_state.username = None
-        st.session_state.page = "Login"
+        
+        #Remap the user to the Tracker Dashboard to start
+        st.session_state.page = "Tracker Dashboard"
         st.rerun()
 
     # Check and update the current page
