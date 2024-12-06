@@ -5,3 +5,4 @@ test_app.py
 **/__pycache__/
 test_data/*
 ichorCurate_env/*
+curated_solutions/*
