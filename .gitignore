@@ -4,3 +4,4 @@ test_app.py
 *.R
 **/__pycache__/
 test_data/*
+ichorCurate_env/*
