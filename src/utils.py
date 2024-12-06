@@ -100,7 +100,7 @@ def display_chromosome_plots(selected_chromosomes, genome_wide_directory, soluti
 
 
 # Function to export the curated solution
-def export(sample, solution, base_sample_directory, output_directory):
+def export(sample, base_sample_directory, output_directory, solution = "optimal"):
     # Create the output directory if it doesn't exist # TODO I feel like this won't work if the output path is relative vs gloabl, need to double check this
     os.makedirs(output_directory, exist_ok=True) # TODO update to a manual entry to specify output location
 
@@ -122,6 +122,10 @@ def export(sample, solution, base_sample_directory, output_directory):
 
             #Copy over the genome-wide plot for the selected solution
             for file in files:
+
+                # The "solution" input either contains the curated solution name, 
+                # or the string "optimal". Here we check through all the files in 
+                # the directory to find the one that matches the solution name
                 if solution in file:
                     shutil.copy(os.path.join(root, file), os.path.join(output_directory, sample))
 
@@ -129,6 +133,4 @@ def export(sample, solution, base_sample_directory, output_directory):
             for directory in dirs:
                 if solution.replace("-", "_") in directory:
                     shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, sample), directory))
-
-
-
+    

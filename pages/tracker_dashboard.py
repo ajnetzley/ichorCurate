@@ -30,7 +30,7 @@ def display():
         ]
 
     # Table headers
-    cols = st.columns([3, 2, 2, 2])  # Adjust column width ratios
+    cols = st.columns([2, 2, 2, 2])  # Adjust column width ratios
     with cols[0]:
         st.write("**Sample**")
     with cols[1]:
@@ -62,7 +62,11 @@ def display():
         if curated_solution:
             for i in range(num_curations):
                 # Create a row
-                cols = st.columns([3, 2, 2, 2])
+                cols = st.columns([2, 2, 2, 2])
+
+                #Extract and format the solution name from the pdf file name
+                match = re.search(r"n([\d.]+)-p(\d+)\.pdf$", solutions[i])
+                formatted_solution_name = f"Normal {match.group(1)}, Ploidy {match.group(2)}"
 
                 # Column 1: Sample Button
                 with cols[0]:
@@ -78,7 +82,7 @@ def display():
                 # Column 2: Curated Solution
                 with cols[1]:
                     # Display a green letters and solution name
-                    st.success(f"Selected: {solutions[i][-11:-4]}")
+                    st.success(f"Selected: {formatted_solution_name}")
 
                 # Column 3: User
                 with cols[2]:
@@ -87,14 +91,14 @@ def display():
 
                 # Column 4: Export Button
                 with cols[3]: 
-                    if st.button(f"Export {sample}", key=f"export_{sample}_{users[i]}"):
-                        st.write(f"Exported solution for {solutions[i][-11:-4]} for {sample}")
+                    if st.button(f"Export {formatted_solution_name}", key=f"export_{sample}_{users[i]}"):
+                        st.write(f"Exported {formatted_solution_name} solution for {sample}")
 
-                        export(sample, solutions[i][-11:-4], base_sample_directory, st.session_state.output_path)
+                        export(sample, base_sample_directory, st.session_state.output_path, solutions[i][-11:-4])
 
         else:
             # Create a row
-            cols = st.columns([3, 2, 2, 2])
+            cols = st.columns([2, 2, 2, 2])
 
             # Column 1: Sample Button
             with cols[0]:
@@ -103,6 +107,12 @@ def display():
                     st.session_state.selected_sample = sample
                     st.session_state.page = "Curation"
                     st.rerun()  # Refresh the app to load the curation page
+            
+            # Column 4: Export Button for default export
+            with cols[3]: 
+                if st.button(f"Export Default Solution", key=f"export_{sample}"):
+                    st.write(f"Exported default solution for {sample}")
 
+                    export(sample, base_sample_directory, st.session_state.output_path)
         # Add a divider to separate rows
         st.divider()
