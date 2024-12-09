@@ -19,14 +19,11 @@ def display():
     st.subheader("Tracker Dashboard")
 
     # Create a button for each sample in the data directory
-    base_sample_directory = "test_data/"
-
-    #TODO update to just read folder names
-    #TODO incorporate some way to upload a folder?
+    sample_directory = st.session_state.selected_folder#"test_data/" 
 
     sample_folders = [
-        f for f in os.listdir(base_sample_directory) 
-        if os.path.isdir(os.path.join(base_sample_directory, f))
+        f for f in os.listdir(sample_directory) 
+        if os.path.isdir(os.path.join(sample_directory, f))
         ]
 
     # Table headers
@@ -94,7 +91,7 @@ def display():
                     if st.button(f"Export {formatted_solution_name}", key=f"export_{sample}_{users[i]}"):
                         st.write(f"Exported {formatted_solution_name} solution for {sample}")
 
-                        export(sample, base_sample_directory, st.session_state.output_path, solutions[i][-11:-4])
+                        export(sample, sample_directory, st.session_state.output_path, solutions[i][-11:-4])
 
         else:
             # Create a row
@@ -113,6 +110,6 @@ def display():
                 if st.button(f"Export Default Solution", key=f"export_{sample}"):
                     st.write(f"Exported default solution for {sample}")
 
-                    export(sample, base_sample_directory, st.session_state.output_path)
+                    export(sample, sample_directory, st.session_state.output_path)
         # Add a divider to separate rows
         st.divider()
