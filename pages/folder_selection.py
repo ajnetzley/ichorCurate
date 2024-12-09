@@ -1,10 +1,10 @@
 """
 login.py
-v0.1.0, 12/2/2024
+v0.1.0, 12/9/2024
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
-This module provides the logic for the folder selection page of the IchorCurate app.
+This module provides the logic for the folder selection page of the ichorCurate app.
 """
 
 # Import packages
@@ -15,7 +15,7 @@ def display():
     st.title("Folder Selection")
 
     # Input field for folder path
-    folder_path = st.text_input("Enter the path to the IchorCNA data you wish to curate. This should be a path to a folder containing subdirectories named for each sample")
+    folder_path = st.text_input("Enter the path to the ichorCNA data you wish to curate. This should be a path to a folder containing subdirectories named for each sample")
 
     if folder_path:
         # Validate if the folder exists

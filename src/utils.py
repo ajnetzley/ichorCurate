@@ -1,10 +1,10 @@
 """
 utils.py
-v1.0.0, 11/6/2024
+v0.1.0, 12/9/2024
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
-This module provides helper functions for the IchorCurate app.
+This module provides helper functions for the ichorCurate app.
 """
 # Import packages
 import fitz  # PyMuPDF

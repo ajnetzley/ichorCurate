@@ -1,10 +1,10 @@
 """
 login.py
-v0.1.0, 11/6/2024
+v0.1.0, 12/9/2024
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
-This module provides the logic for the entry login page of the IchorCurate app.
+This module provides the logic for the entry login page of the ichorCurate app.
 """
 
 # Import packages

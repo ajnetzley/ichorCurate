@@ -1,7 +1,7 @@
-# IchorCurate
-IchorCurate is a solution curation application to supplement [ichorCNA](https://github.com/broadinstitute/ichorCNA), a tool for estimating the fraction of tumor in cell-free DNA from ultra-low-pass whole genome sequencing (ULP-WGS, 0.1x coverage).
+# ichorCurate
+ichorCurate is a solution curation application to supplement [ichorCNA](https://github.com/broadinstitute/ichorCNA), a tool for estimating the fraction of tumor in cell-free DNA from ultra-low-pass whole genome sequencing (ULP-WGS, 0.1x coverage).
 
-As a Streamlit powered app, IchorCurate allows users to seamlessly monitor, collaborate, and execute ichorCNA optimal solution selection.
+As a Streamlit powered app, ichorCurate allows users to seamlessly monitor, collaborate, and execute ichorCNA optimal solution selection.
 
 ## Usage
 After running ichorCNA and generating the potential solution outputs, use the following steps to run this application locally. In future versions, we plan to deploy this app on a server, but currently this app must be run through cloning the repository.
@@ -10,14 +10,14 @@ After running ichorCNA and generating the potential solution outputs, use the fo
 To start, clone this repository. 
 
 ```
-git clone https://github.com/ajnetzley/IchorCurate.git
+git clone https://github.com/ajnetzley/ichorCurate.git
 ```
 
 Next, create a venv with Python 3.11.5, and use the "requirements.txt" to create a virtual environment to run the application in.
 
 ```
-python3.11 -m venv IchorCurate_env
-source IchorCurate_env/bin/activate
+python3.11 -m venv ichorCurate_env
+source ichorCurate_env/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -53,4 +53,4 @@ Next, you are directed to the Tracker Dashboard page, which contains a summary d
 ```
 
 ## Acknowledgments
-IchorCurate is developed by Alexander Netzley, on behalf of the Gavin Ha Lab at Fred Hutch Cancer Center
+ichorCurate is developed by Alexander Netzley, on behalf of the Gavin Ha Lab at Fred Hutch Cancer Center

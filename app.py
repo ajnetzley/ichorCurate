@@ -1,10 +1,10 @@
 """
 app.py
-v1.0.0, 11/6/2024
+v0.1.0, 12/9/2024
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
-This module provides the wrapper function for running the IchorCurate app.
+This module provides the wrapper function for running the ichorCurate app.
 """
 
 # Import packages
@@ -21,7 +21,7 @@ from src.utils import *
 st.set_page_config(layout="wide")
 
 # Title of the app
-st.title('IchorCurate')
+st.title('ichorCurate')
 
 # Initialize session for login
 if "logged_in" not in st.session_state:
