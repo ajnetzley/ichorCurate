@@ -109,24 +109,25 @@ def display():
         if selected_chromosomes:
             display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_folder_name, sample_name)
 
-        ########################################
-        ### Selected Solutions - Genome-Wide ###
-        ########################################
-        # with col_sol:
+        ##########################
+        ### Selected Solutions ###
+        ##########################
         st.subheader("Selected Solution")
+
+        # Display the selected solution PDF if selection has occured
         if st.session_state.visualization[sample_name]["solution_pdf"]:
+
+            ########################################
+            ### Selected Solutions - Genome-Wide ###
+            ########################################
             solution_path = os.path.join(genome_wide_directory, st.session_state.visualization[sample_name]["solution_pdf"])
             solution_image = get_pdf_first_page_image(solution_path)
             #st.write(f"Solution PDF: {st.session_state.solution_pdf}")
             st.image(solution_image, use_container_width=True)
             
-        else:
-            st.write("No solution selected.")
-
-        ###########################################
-        ### Selected Solutions - Per-Chromosome ###
-        ###########################################
-        if st.session_state.visualization[sample_name]["solution_pdf"]:
+            ###########################################
+            ### Selected Solutions - Per-Chromosome ###
+            ###########################################
             # Display checkboxes for each chromosome, and allow selecting
             selected_chromosomes, solution_folder_name = select_chromosomes("selected", st.session_state.visualization[sample_name]["solution_pdf"], genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
 
@@ -134,23 +135,26 @@ def display():
             if selected_chromosomes:
                 display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_folder_name, sample_name)
 
-        ###################################
-        ### Selected Solutions - Curate ###
-        ###################################
-        # Write selected solution, and return to dashboard page
-        if button("Select as Curated Solution", "Ctrl+Enter", None, hint=True):
+            ###################################
+            ### Selected Solutions - Curate ###
+            ###################################
+            # Write selected solution, and return to dashboard page
+            if button("Select as Curated Solution", "Ctrl+Enter", None, hint=True):
 
-            # Intiialize the sample in the curated solutions dict if it has not already been curated
-            if sample_name not in st.session_state.curated_solutions:
-                st.session_state.curated_solutions[sample_name] = {}
+                # Intiialize the sample in the curated solutions dict if it has not already been curated
+                if sample_name not in st.session_state.curated_solutions:
+                    st.session_state.curated_solutions[sample_name] = {}
 
-            # Intialize the user profile in session state if it doesn't exist
-            if st.session_state.username not in st.session_state.curated_solutions[sample_name]:
-                st.session_state.curated_solutions[sample_name][st.session_state.username] = {}
+                # Intialize the user profile in session state if it doesn't exist
+                if st.session_state.username not in st.session_state.curated_solutions[sample_name]:
+                    st.session_state.curated_solutions[sample_name][st.session_state.username] = {}
 
-            # Save the selected solution in session state
-            st.session_state.curated_solutions[sample_name][st.session_state.username] = st.session_state.visualization[sample_name]["solution_pdf"]
+                # Save the selected solution in session state
+                st.session_state.curated_solutions[sample_name][st.session_state.username] = st.session_state.visualization[sample_name]["solution_pdf"]
 
-            st.session_state.page = "Tracker Dashboard" # Navigate back to the tracker dashboard
-            st.rerun()  # Refresh the app to load the tracker dashboard page
+                st.session_state.page = "Tracker Dashboard" # Navigate back to the tracker dashboard
+                st.rerun()  # Refresh the app to load the tracker dashboard page
+
+        else:
+            st.write("No solution selected.")
         

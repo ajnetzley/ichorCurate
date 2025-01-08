@@ -15,7 +15,7 @@ def display():
     st.title("Folder Selection")
 
     # Input field for folder path
-    folder_path = st.text_input("Enter the path to the ichorCNA data you wish to curate. This should be a path to a folder containing subdirectories named for each sample")
+    folder_path = st.text_input("Enter the path to the ichorCNA data you wish to curate. This should be a path to a folder containing only the data, consisting of subdirectories named for each sample")
 
     if folder_path:
         # Validate if the folder exists
