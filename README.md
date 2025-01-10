@@ -3,7 +3,7 @@ ichorCurate is a solution curation application to supplement [ichorCNA](https://
 
 As a Streamlit powered app, ichorCurate allows users to seamlessly monitor, collaborate, and execute ichorCNA optimal solution selection.
 
-## Usage
+## Usage - Running the App Locally
 After running ichorCNA and generating the potential solution outputs, use the following steps to run this application locally. In future versions, we plan to deploy this app on a server, but currently this app must be run through cloning the repository.
 
 ### Step 1) App Setup
@@ -25,7 +25,7 @@ pip install -r requirements.txt
 After navigating to the directory where you cloned the repo and activating the enviroment, execute the following command to start the app.
 
 ```markdown
-streamlit run app.py
+streamlit run app/app.py
 ```
 
 ### Step 3) Logging in and Folder Selection
@@ -37,15 +37,16 @@ Next, you are directed to the Tracker Dashboard page, which contains a summary d
 
 ## Repository Structure
 ```markdown
-
-├── pages/                                         # Folder containing the python scripts for each page of the app
-│   ├── curation.py                                     # Python script for curation, namely visualizing and selecting optimal solutions for a sample
-│   ├── folder_selection.py                             # Python script for the page allowing users to enter the input and output filepaths
-│   ├── login.py                                        # Python script for the login page
-│   └── tracker_dashboard.py                            # Python script for tracking the curation status, and providing a dashboard overview and navigation
-├── src/                                           # Folder containing the source scripts full supplemental methods
-│   └── utils.py                                        # Python script containing a variety of helper functions used throughout the application
-├── app.py                                          # The main python wrapper for the app
+├── app/
+│   ├── pages/                                      # Folder containing the python scripts for each page of the app
+│   │   ├── curation.py                                 # Python script for curation, namely visualizing and selecting optimal solutions for a sample
+│   │   ├── folder_selection.py                         # Python script for the page allowing users to enter the input and output filepaths
+│   │   ├── login.py                                    # Python script for the login page
+│   │   └── tracker_dashboard.py                        # Python script for tracking the curation status, and providing a dashboard overview and navigation
+│   ├── src/                                        # Folder containing the source scripts full supplemental methods
+│   │   └── utils.py                                    # Python script containing a variety of helper functions used throughout the application
+│   └── app.py                                      # The main python wrapper for the app
+├── Dockerfile                                      # The Dockerfile used to generate the Docker Image for the app
 ├── README.md                                       # README for the repo
 ├── LICENSE                                         # License documentation
 ├── .gitignore                                      # git ignore for the repo
