@@ -31,7 +31,7 @@ def display():
         sample_name = st.session_state.selected_sample
 
         # Specify the directory containing the genome-wdie PDFs
-        genome_wide_directory = os.path.join("test_data/", sample_name, sample_name)
+        genome_wide_directory = os.path.join(st.session_state.selected_folder, sample_name)
         
         # Load the PDFs containing "genomeWide_n" and ending with ".pdf"
         genome_wide_pdf_files = [
