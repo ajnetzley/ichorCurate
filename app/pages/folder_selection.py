@@ -20,6 +20,9 @@ def display():
     if folder_path:
         # Validate if the folder exists
         if os.path.exists(folder_path) and os.path.isdir(folder_path):
+            # Add a trailing "/" if not present
+            if folder_path[-1] != "/":
+                folder_path += "/"
             st.session_state.selected_folder = folder_path
             st.success(f"Folder '{folder_path}' selected successfully!")
         else:
