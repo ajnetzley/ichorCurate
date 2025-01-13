@@ -70,6 +70,11 @@ def display():
         # with col_nav:
         st.subheader(f"Potential Solutions for Sample: {sample_name}")
 
+        # Toggle for enabling chromosome zoom
+        chrom_zoom = False
+        if st.toggle("Enable Chromosome Zoom"):
+            chrom_zoom = True
+
         # Display navigation buttons
         col1, col2, col3 = st.columns([1, 2, 1])
         with col1:
@@ -102,12 +107,42 @@ def display():
         ############################################
         ### Potential Solutions - Per-Chromosome ###
         ############################################
-        # Display checkboxes for each chromosome, and allow selecting
-        selected_chromosomes, solution_folder_name = select_chromosomes("current", st.session_state.visualization[sample_name]["current_pdf"], genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
+        if chrom_zoom:
+            # Display checkboxes for each chromosome, and allow selecting
+            selected_chromosomes, solution_folder_name = select_chromosomes("current", st.session_state.visualization[sample_name]["current_pdf"], genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
 
-        # Display selected PDFs in horizontal layout
-        if selected_chromosomes:
-            display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_folder_name, sample_name)
+            # Display selected PDFs in horizontal layout
+            if selected_chromosomes:
+                display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_folder_name, sample_name)
+        
+        
+        ###################################
+        ### Reference Curated Solutions ###
+        ###################################
+        if st.toggle("Reference Curated Solution"):
+            if not st.session_state.curated_solutions:
+                st.write(f"No curated solutions found for user {st.session_state.username}.")
+            else:
+                st.subheader("Reference Curated Solution")
+
+                # Extract all of the curated samples by that user
+                samples_from_user = [
+                    curated_sample
+                    for curated_sample, usernames in st.session_state.curated_solutions.items()
+                    if st.session_state.username in usernames
+                ]
+
+                options = st.multiselect(
+                    "Select Reference Curated Solution", 
+                    samples_from_user,
+                    label_visibility="collapsed"
+                    )
+
+                for reference_sample in options:
+                    solution_path = os.path.join(st.session_state.selected_folder, reference_sample, st.session_state.curated_solutions[reference_sample][st.session_state.username])
+                    solution_image = get_pdf_first_page_image(solution_path)
+                    #st.write(f"Solution PDF: {st.session_state.solution_pdf}")
+                    st.image(solution_image, use_container_width=True)
 
         ##########################
         ### Selected Solutions ###
@@ -128,12 +163,13 @@ def display():
             ###########################################
             ### Selected Solutions - Per-Chromosome ###
             ###########################################
-            # Display checkboxes for each chromosome, and allow selecting
-            selected_chromosomes, solution_folder_name = select_chromosomes("selected", st.session_state.visualization[sample_name]["solution_pdf"], genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
+            if chrom_zoom:
+                # Display checkboxes for each chromosome, and allow selecting
+                selected_chromosomes, solution_folder_name = select_chromosomes("selected", st.session_state.visualization[sample_name]["solution_pdf"], genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
 
-            # Display selected PDFs in horizontal layout
-            if selected_chromosomes:
-                display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_folder_name, sample_name)
+                # Display selected PDFs in horizontal layout
+                if selected_chromosomes:
+                    display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_folder_name, sample_name)
 
             ###################################
             ### Selected Solutions - Curate ###
