@@ -13,7 +13,7 @@ import os
 import re
 
 # Import user modules
-from src.utils import export
+from src.utils import get_tfx_and_ploidy, export
 
 def display():
     st.subheader("Tracker Dashboard")
@@ -63,7 +63,9 @@ def display():
 
                 #Extract and format the solution name from the pdf file name
                 match = re.search(r"n([\d.]+)-p(\d+)\.pdf$", solutions[i])
-                formatted_solution_name = f"Normal {match.group(1)}, Ploidy {match.group(2)}"
+                #formatted_solution_name = f"Normal {match.group(1)}, Ploidy {match.group(2)}"
+                tumor_fraction, ploidy = get_tfx_and_ploidy(sample, sample_directory, match)
+                formatted_solution_name = f"Tumor Fraction {tumor_fraction}, Ploidy {ploidy}"
 
                 # Column 1: Sample Button
                 with cols[0]:
@@ -91,7 +93,7 @@ def display():
                     if st.button(f"Export {formatted_solution_name}", key=f"export_{sample}_{users[i]}"):
                         st.write(f"Exported {formatted_solution_name} solution for {sample}")
 
-                        export(sample, sample_directory, st.session_state.output_path, solutions[i][-11:-4])
+                        export(sample, sample_directory, st.session_state.output_path, solutions[i][-11:-4])#TODO fix to remove sample
 
         else:
             # Create a row

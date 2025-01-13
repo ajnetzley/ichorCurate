@@ -98,8 +98,7 @@ def display_chromosome_plots(selected_chromosomes, genome_wide_directory, soluti
                 st.write(f"Chromosome {extract_chromosome_number(pdf_file)} PDF not found.")
 
 
-
-# Function to export the curated solution
+# Function to export the curated solution (UNNESTED VERSION)
 def export(sample, base_sample_directory, output_directory, solution = "optimal"):
     # Create the output directory if it doesn't exist # TODO I feel like this won't work if the output path is relative vs gloabl, need to double check this
     os.makedirs(output_directory, exist_ok=True) # TODO update to a manual entry to specify output location
@@ -112,25 +111,81 @@ def export(sample, base_sample_directory, output_directory, solution = "optimal"
     # Copy the curated solution to the output directory
     for root, dirs, files in os.walk(base_sample_directory + sample):
 
-        # Copy everything from the first layer
-        if root[len(base_sample_directory + sample):].count(os.sep) == 0:
-            for file in files:
+        #Copy over the genome-wide plot for the selected solution
+        for file in files:
+
+            # The "solution" input either contains the curated solution name, 
+            # or the string "optimal". Here we check through all the files in 
+            # the directory to find the one that matches the solution name
+            if solution in file:
                 shutil.copy(os.path.join(root, file), os.path.join(output_directory, sample))
 
-        # For deeper layers, copy only the curated solution
-        elif root[len(base_sample_directory + sample):].count(os.sep) == 1:
-
-            #Copy over the genome-wide plot for the selected solution
-            for file in files:
-
-                # The "solution" input either contains the curated solution name, 
-                # or the string "optimal". Here we check through all the files in 
-                # the directory to find the one that matches the solution name
-                if solution in file:
-                    shutil.copy(os.path.join(root, file), os.path.join(output_directory, sample))
-
-            #Copy over the rest of the data for that solution
-            for directory in dirs:
-                if solution.replace("-", "_") in directory:
-                    shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, sample), directory))
+        #Copy over the rest of the data for that solution
+        for directory in dirs:
+            if solution.replace("-", "_") in directory:
+                shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, sample), directory))
     
+
+# # Function to export the curated solution
+# def export(sample, base_sample_directory, output_directory, solution = "optimal"):
+#     # Create the output directory if it doesn't exist # TODO I feel like this won't work if the output path is relative vs gloabl, need to double check this
+#     os.makedirs(output_directory, exist_ok=True) # TODO update to a manual entry to specify output location
+
+#     #Overwrite existing soltuion if it exists
+#     if os.path.exists(os.path.join(output_directory, sample)):
+#         shutil.rmtree(os.path.join(output_directory, sample))
+#     os.makedirs(os.path.join(output_directory, sample), exist_ok=True)
+
+#     # Copy the curated solution to the output directory
+#     for root, dirs, files in os.walk(base_sample_directory + sample):
+
+#         # Copy everything from the first layer
+#         if root[len(base_sample_directory + sample):].count(os.sep) == 0:
+#             for file in files:
+#                 shutil.copy(os.path.join(root, file), os.path.join(output_directory, sample))
+
+#         # For deeper layers, copy only the curated solution
+#         elif root[len(base_sample_directory + sample):].count(os.sep) == 1:
+
+#             #Copy over the genome-wide plot for the selected solution
+#             for file in files:
+
+#                 # The "solution" input either contains the curated solution name, 
+#                 # or the string "optimal". Here we check through all the files in 
+#                 # the directory to find the one that matches the solution name
+#                 if solution in file:
+#                     shutil.copy(os.path.join(root, file), os.path.join(output_directory, sample))
+
+#             #Copy over the rest of the data for that solution
+#             for directory in dirs:
+#                 if solution.replace("-", "_") in directory:
+#                     shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, sample), directory))
+
+# Function to get the tumor fraction and ploidy from the params file for a selected solution
+def get_tfx_and_ploidy(sample, sample_directory, match):
+
+    # Get the path to the params file
+    sample_folder = os.path.join(sample_directory + sample)
+    params_file_name = None
+
+    for subfolder in os.listdir(sample_folder):
+        #Select the folder of the solution that matches the selected solution
+        if subfolder.endswith(f"n{match.group(1)}_p{match.group(2)}"):
+            selected_solution_folder = os.path.join(sample_folder, subfolder)
+            # Construct the expected params file name
+            params_file_name = f"{sample}.params.txt"
+            # Construct the path to params.txt
+            potential_params_file = os.path.join(selected_solution_folder, params_file_name)
+            if os.path.isfile(potential_params_file):
+                params_file_path = potential_params_file
+                break
+
+    # Open the params files
+    with open(params_file_path, "r") as file:
+        lines = file.readlines()
+
+    # Extract the tfx and ploidy
+    tumor_fraction = lines[1].strip().split("\t")[1]
+    ploidy = lines[1].strip().split("\t")[2]
+
+    return tumor_fraction, ploidy
