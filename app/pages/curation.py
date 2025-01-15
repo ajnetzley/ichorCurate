@@ -1,6 +1,6 @@
 """
 curation.py
-v0.1.0, 12/9/2024
+v0.2.0, 1/15/2025
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
@@ -198,4 +198,3 @@ def display():
 
         else:
             st.write("No solution selected.")
-        
