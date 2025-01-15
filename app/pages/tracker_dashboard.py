@@ -21,10 +21,10 @@ def display():
     # Create a button for each sample in the data directory
     sample_directory = st.session_state.selected_folder#"test_data/" 
 
-    sample_folders = [
+    sample_folders = sorted([
         f for f in os.listdir(sample_directory) 
         if os.path.isdir(os.path.join(sample_directory, f))
-        ]
+        ])
 
     # Instantiate the output path for exporting files
     os.makedirs(st.session_state.output_path, exist_ok=True) 
