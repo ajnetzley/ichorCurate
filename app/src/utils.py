@@ -16,7 +16,7 @@ import os
 import shutil
 
 # Function to find the default solution and sort the genome wide pdfs so the optimal is listed first
-def sort_genome_wide_pdfs(genome_wide_directory, genome_wide_pdf_files):
+def promote_default_pdf(genome_wide_directory, genome_wide_pdf_files):
         # Find the "optimal" subfolder and extract n and p values
         n_value, p_value = None, None
         for item in os.listdir(genome_wide_directory):

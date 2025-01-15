@@ -13,7 +13,7 @@ import os
 from streamlit_shortcuts import button, add_keyboard_shortcuts
 
 # Import user modules
-from src.utils import get_pdf_first_page_image, extract_chromosome_number, sort_genome_wide_pdfs, select_chromosomes, display_chromosome_plots
+from src.utils import get_pdf_first_page_image, extract_chromosome_number, promote_default_pdf, select_chromosomes, display_chromosome_plots
 
 def display():
     """
@@ -34,13 +34,13 @@ def display():
         genome_wide_directory = os.path.join(st.session_state.selected_folder, sample_name)
         
         # Load the PDFs containing "genomeWide_n" and ending with ".pdf"
-        genome_wide_pdf_files = [
+        genome_wide_pdf_files = sorted([
             f for f in os.listdir(genome_wide_directory)
             if "genomeWide_n" in f and f.endswith(".pdf")
-        ]
+        ])
 
         # Identify the default solution, and place this at the front of the list
-        sorted_genome_wide_pdf_files = sort_genome_wide_pdfs(genome_wide_directory, genome_wide_pdf_files)
+        sorted_genome_wide_pdf_files = promote_default_pdf(genome_wide_directory, genome_wide_pdf_files)
 
         # Loop through the directory and load and store the PDFs names of the per-chromosome plots
         for solution, _, files in os.walk(genome_wide_directory):
