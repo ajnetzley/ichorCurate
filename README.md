@@ -7,7 +7,7 @@ As a Streamlit powered app, ichorCurate allows users to seamlessly monitor, coll
 After running ichorCNA and generating the potential solution outputs, use the following steps to run this application locally. In future versions, we plan to deploy this app on a server, but currently this app must be run through cloning the repository.
 
 ### Step 1) App Setup
-To start, clone this repository. 
+To start, clone this repository and navigate into the "ichorCurate" folder.
 
 ```
 git clone https://github.com/ajnetzley/ichorCurate.git

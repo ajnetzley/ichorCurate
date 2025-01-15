@@ -109,8 +109,8 @@ def display():
 
                 # Column 4: Export Button
                 with cols[3]: 
-                    if st.button(f"Export {formatted_solution_name}", key=f"export_{sample}_{users[i]}"):
-                        st.write(f"Exported {formatted_solution_name} solution for {sample}")
+                    if st.button(f"Export Curated Solution ({formatted_solution_name})", key=f"export_{sample}_{users[i]}"):
+                        st.write(f"Exported Curated Solution ({formatted_solution_name}) for {sample}")
 
                         export(sample, sample_directory, st.session_state.output_path, solutions[i][-11:-4])#TODO fix to remove sample
                 

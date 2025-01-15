@@ -32,7 +32,7 @@ if not st.session_state.logged_in:
     login_display()
 
 # Redirect the user to the folder selection page if they have not selected a folder
-elif "selected_folder" not in st.session_state:
+elif "selected_folder" not in st.session_state or "output_path" not in st.session_state:
     folder_selection_display()
 
 else:
