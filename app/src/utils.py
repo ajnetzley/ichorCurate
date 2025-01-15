@@ -74,8 +74,6 @@ def select_chromosomes(display_mode, solution_pdf, genome_wide_directory, genome
 
     return selected_chromosomes, solution_details_folder
 
-
-
 # Function to plot the per-chromosome copy number data
 def display_chromosome_plots(selected_chromosomes, genome_wide_directory, solution_details_folder, sample_name):
     # If just one chromosome is selected, take up the whole page
@@ -124,9 +122,8 @@ def export(sample, base_sample_directory, output_directory, solution = "optimal"
         for directory in dirs:
             if solution.replace("-", "_") in directory:
                 shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, sample), directory))
-    
 
-# # Function to export the curated solution
+# # Function to export the curated solution (NESTED VERSION)
 # def export(sample, base_sample_directory, output_directory, solution = "optimal"):
 #     # Create the output directory if it doesn't exist # TODO I feel like this won't work if the output path is relative vs gloabl, need to double check this
 #     os.makedirs(output_directory, exist_ok=True) # TODO update to a manual entry to specify output location
@@ -189,3 +186,53 @@ def get_tfx_and_ploidy(sample, sample_directory, match):
     ploidy = lines[1].strip().split("\t")[2]
 
     return tumor_fraction, ploidy
+
+# Function to collect summary information
+def populate_summary(sample_folders, sample_directory, curated_solutions):
+    summary = []
+    # Populate the summary list
+    for sample in sample_folders:
+        # Check if the sample has a curated solution
+        curated_solution = (
+            curated_solutions[sample]
+            if sample in curated_solutions
+            else None
+        )
+
+        # Extract the users and curated solutions, if curation has been performed
+        if curated_solution:
+            users = list(curated_solutions[sample].keys())
+            solutions = list((curated_solutions[sample].values()))
+            num_curations = len(users)
+        else:
+            num_curations = 0
+
+        # Add to summary
+        if curated_solution:
+            for i in range(num_curations):
+                match = re.search(r"n([\d.]+)-p(\d+)\.pdf$", solutions[i])
+                tumor_fraction, ploidy = get_tfx_and_ploidy(sample, sample_directory, match)
+                formatted_solution_name = f"Tumor Fraction {tumor_fraction}, Ploidy {ploidy}"
+                summary.append(f"Sample: {sample}, Curated Solution: {formatted_solution_name}, User: {users[i]}")
+        else:
+            summary.append(f"Sample: {sample}, Curated Solution: None, User: None")
+    
+    return summary
+
+# Function to generate a summary file of the curated solutions
+def generate_summary_file(summary, output_directory):
+    output_file_path = os.path.join(output_directory, "curation_summary.txt")
+    with open(output_file_path, 'w') as file:
+        file.write("Sample Name\tCuration Status\tUser\n")
+        for line in summary:
+            file.write(line + "\n")
+    
+
+# Function to export all samples
+def export_all(sample_folders, curated_solutions, sample_directory, output_directory, curated_only=False):
+    for sample in sample_folders:
+        if sample in curated_solutions:
+            for user, solution in curated_solutions[sample].items():
+                export(sample, sample_directory, output_directory, solution[-11:-4])
+        elif not curated_only:
+            export(sample, sample_directory, output_directory)

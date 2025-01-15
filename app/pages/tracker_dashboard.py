@@ -13,7 +13,7 @@ import os
 import re
 
 # Import user modules
-from src.utils import get_tfx_and_ploidy, export
+from src.utils import get_tfx_and_ploidy, populate_summary, generate_summary_file, export, export_all
 
 def display():
     st.subheader("Tracker Dashboard")
@@ -25,6 +25,25 @@ def display():
         f for f in os.listdir(sample_directory) 
         if os.path.isdir(os.path.join(sample_directory, f))
         ]
+
+    # Instantiate the output path for exporting files
+    os.makedirs(st.session_state.output_path, exist_ok=True) 
+
+    #Generate the summary
+    summary = populate_summary(sample_folders, sample_directory, st.session_state.curated_solutions)
+
+    # Buttons for exporting curation summary and all curations
+    if st.button("Export Curation Summary"):
+        generate_summary_file(summary, st.session_state.output_path)
+        st.write(f"Summary file generated at {os.path.join(st.session_state.output_path, 'curation_summary.txt')}")
+
+    if st.button("Export All Samples"):
+        export_all(sample_folders, st.session_state.curated_solutions, sample_directory, st.session_state.output_path)
+        st.write(f"All solutions exported to {st.session_state.output_path}")
+
+    if st.button("Export All Curated Samples"):
+        export_all(sample_folders, st.session_state.curated_solutions, sample_directory, st.session_state.output_path, curated_only=True)
+        st.write(f"All curated solutions exported to {st.session_state.output_path}")
 
     # Table headers
     cols = st.columns([2, 2, 2, 2])  # Adjust column width ratios
@@ -94,7 +113,7 @@ def display():
                         st.write(f"Exported {formatted_solution_name} solution for {sample}")
 
                         export(sample, sample_directory, st.session_state.output_path, solutions[i][-11:-4])#TODO fix to remove sample
-
+                
         else:
             # Create a row
             cols = st.columns([2, 2, 2, 2])
@@ -113,5 +132,7 @@ def display():
                     st.write(f"Exported default solution for {sample}")
 
                     export(sample, sample_directory, st.session_state.output_path)
+            
         # Add a divider to separate rows
         st.divider()
+    
