@@ -13,7 +13,7 @@ import os
 from streamlit_shortcuts import button, add_keyboard_shortcuts
 
 # Import user modules
-from src.utils import *
+from src.utils import get_pdf_first_page_image, extract_chromosome_number, sort_genome_wide_pdfs, select_chromosomes, display_chromosome_plots
 
 def display():
     """
@@ -38,6 +38,9 @@ def display():
             f for f in os.listdir(genome_wide_directory)
             if "genomeWide_n" in f and f.endswith(".pdf")
         ]
+
+        # Identify the default solution, and place this at the front of the list
+        sorted_genome_wide_pdf_files = sort_genome_wide_pdfs(genome_wide_directory, genome_wide_pdf_files)
 
         # Loop through the directory and load and store the PDFs names of the per-chromosome plots
         for solution, _, files in os.walk(genome_wide_directory):
@@ -82,20 +85,22 @@ def display():
                 st.session_state.visualization[sample_name]["pdf_index"] -= 1
 
         with col2:
-            if button("Next", "ArrowRight", None, hint=True) and st.session_state.visualization[sample_name]["pdf_index"] < len(genome_wide_pdf_files) - 1:
+            if button("Next", "ArrowRight", None, hint=True) and st.session_state.visualization[sample_name]["pdf_index"] < len(sorted_genome_wide_pdf_files) - 1:
                 st.session_state.visualization[sample_name]["pdf_index"] += 1
 
         # Display the current PDF as an image
-        if genome_wide_pdf_files:
-            current_pdf = genome_wide_pdf_files[st.session_state.visualization[sample_name]["pdf_index"]]
+        if sorted_genome_wide_pdf_files:
+            current_pdf = sorted_genome_wide_pdf_files[st.session_state.visualization[sample_name]["pdf_index"]]
             st.session_state.visualization[sample_name]["current_pdf"] = current_pdf
             file_path = os.path.join(genome_wide_directory, current_pdf)
             pdf_image = get_pdf_first_page_image(file_path)
 
             #st.subheader(f"Displaying {current_pdf}")
+            if st.session_state.visualization[sample_name]["pdf_index"] == 0:
+                st.subheader("Default Solution")
             st.image(pdf_image, use_container_width=True)
 
-            st.write(f"Showing Potential Solution {st.session_state.visualization[sample_name]['pdf_index'] + 1} of {len(genome_wide_pdf_files)}")
+            st.write(f"Showing Potential Solution {st.session_state.visualization[sample_name]['pdf_index'] + 1} of {len(sorted_genome_wide_pdf_files)}")
 
             # Button to set the current PDF as the solution
             with col3:
@@ -109,7 +114,7 @@ def display():
         ############################################
         if chrom_zoom:
             # Display checkboxes for each chromosome, and allow selecting
-            selected_chromosomes, solution_folder_name = select_chromosomes("current", st.session_state.visualization[sample_name]["current_pdf"], genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
+            selected_chromosomes, solution_folder_name = select_chromosomes("current", st.session_state.visualization[sample_name]["current_pdf"], genome_wide_directory, sorted_genome_wide_pdf_files, chromosome_pdf_files)
 
             # Display selected PDFs in horizontal layout
             if selected_chromosomes:
@@ -165,7 +170,7 @@ def display():
             ###########################################
             if chrom_zoom:
                 # Display checkboxes for each chromosome, and allow selecting
-                selected_chromosomes, solution_folder_name = select_chromosomes("selected", st.session_state.visualization[sample_name]["solution_pdf"], genome_wide_directory, genome_wide_pdf_files, chromosome_pdf_files)
+                selected_chromosomes, solution_folder_name = select_chromosomes("selected", st.session_state.visualization[sample_name]["solution_pdf"], genome_wide_directory, sorted_genome_wide_pdf_files, chromosome_pdf_files)
 
                 # Display selected PDFs in horizontal layout
                 if selected_chromosomes:

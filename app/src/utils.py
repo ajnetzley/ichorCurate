@@ -15,6 +15,30 @@ import streamlit as st
 import os
 import shutil
 
+# Function to find the default solution and sort the genome wide pdfs so the optimal is listed first
+def sort_genome_wide_pdfs(genome_wide_directory, genome_wide_pdf_files):
+        # Find the "optimal" subfolder and extract n and p values
+        n_value, p_value = None, None
+        for item in os.listdir(genome_wide_directory):
+            if os.path.isdir(os.path.join(genome_wide_directory, item)) and "optimal" in item:
+                # Extract n and p values using a regex
+                match = re.search(r"n([\d.]+)_p(\d+)$", item)
+                if match:
+                    n_value, p_value = match.groups()
+                    break
+
+        # If an optimal subfolder is found, prioritize its PDF in the list
+        if n_value and p_value:
+            optimal_pdf = next(
+                (f for f in genome_wide_pdf_files if f"n{n_value}-p{p_value}" in f), None
+            )
+            if optimal_pdf:
+                # Reorder the list to have the optimal PDF first
+                genome_wide_pdf_files.remove(optimal_pdf)
+                genome_wide_pdf_files.insert(0, optimal_pdf)
+        
+        return genome_wide_pdf_files
+
 # Function to get the first page as an image from a PDF
 def get_pdf_first_page_image(pdf_path):
     with fitz.open(pdf_path) as pdf:
