@@ -17,11 +17,30 @@ from pages.login import display as login_display
 from pages.folder_selection import display as folder_selection_display
 from src.utils import *
 
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
+
 # Setting page formats
 st.set_page_config(layout="wide")
 
 # Title of the app
 st.title('ichorCurate')
+
+with open('config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+# Pre-hashing all plain text passwords once
+# stauth.Hasher.hash_passwords(config['credentials'])
+
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
+)
+
+st.session_state.authenticator = authenticator
 
 # Initialize session for login
 if "logged_in" not in st.session_state:
@@ -53,12 +72,20 @@ else:
     page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1)
 
     # Logout Button
-    if st.sidebar.button("Logout"):
-        st.session_state.logged_in = False
-        st.session_state.username = None
+    # if st.sidebar.button("Logout"):
+    #     st.session_state.logged_in = False
+    #     st.session_state.username = None
         
-        #Remap the user to the Tracker Dashboard to start
-        st.session_state.page = "Tracker Dashboard"
+    #     #Remap the user to the Tracker Dashboard to start
+    #     st.session_state.page = "Tracker Dashboard"
+    #     st.rerun()
+
+    if st.session_state['authentication_status']:
+        st.session_state.authenticator.logout(location='sidebar')
+        with st.sidebar:
+            st.write(f'Signed in as *{st.session_state["name"]}*')
+    else:
+        st.session_state.logged_in = False
         st.rerun()
 
     # Check and update the current page

@@ -14,16 +14,35 @@ def display():
     st.title("Login Page")
     st.write("Please log in to continue.")
 
-    # Input field for username
-    username = st.text_input("Enter your name:", key="login_name")
 
-    # Login button
-    if st.button("Login"):
-        if username:
-            # Save username in session state
-            st.session_state.username = username
-            st.session_state.logged_in = True
-            st.success(f"Welcome, {username}!")
-            st.rerun()  # Refresh app to redirect after login
-        else:
-            st.error("Please enter your name.")
+    try:
+        st.session_state.authenticator.login()
+    except Exception as e:
+        st.error(e)
+
+    if st.session_state['authentication_status']:
+        st.session_state.authenticator.logout(location='sidebar')
+        st.write(f'Welcome *{st.session_state["name"]}*')
+        # Save username in session state
+        st.session_state.logged_in = True
+        st.success(f"Welcome, {st.session_state.username}!")
+        st.rerun()  # Refresh app to redirect after login
+
+    elif st.session_state['authentication_status'] is False:
+        st.error('Username/password is incorrect')
+    elif st.session_state['authentication_status'] is None:
+        st.warning('Please enter your username and password')
+
+    # # Input field for username
+    # username = st.text_input("Enter your name:", key="login_name")
+
+    # # Login button
+    # if st.button("Login"):
+    #     if username:
+    #         # Save username in session state
+    #         st.session_state.username = username
+    #         st.session_state.logged_in = True
+    #         st.success(f"Welcome, {username}!")
+    #         st.rerun()  # Refresh app to redirect after login
+    #     else:
+    #         st.error("Please enter your name.")
