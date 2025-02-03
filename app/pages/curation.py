@@ -10,7 +10,7 @@ This module provides the main logic for the curation page of the ichorCurate app
 # Import packages
 import streamlit as st
 import os
-from streamlit_shortcuts import button, add_keyboard_shortcuts
+from streamlit_shortcuts import button
 
 # Import user modules
 from src.utils import get_pdf_first_page_image, extract_chromosome_number, promote_default_pdf, select_chromosomes, display_chromosome_plots

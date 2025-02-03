@@ -21,10 +21,12 @@ def display():
     # Create a button for each sample in the data directory
     sample_directory = st.session_state.selected_folder#"test_data/" 
 
-    sample_folders = sorted([
-        f for f in os.listdir(sample_directory) 
-        if os.path.isdir(os.path.join(sample_directory, f))
-        ])
+    def get_folders(directory):
+        return sorted(
+            (entry.name for entry in os.scandir(directory) if entry.is_dir())
+        )
+
+    sample_folders = get_folders(sample_directory)
 
     # Instantiate the output path for exporting files
     os.makedirs(st.session_state.output_path, exist_ok=True) 
@@ -44,6 +46,37 @@ def display():
     if st.button("Export All Curated Samples"):
         export_all(sample_folders, st.session_state.curated_solutions, sample_directory, st.session_state.output_path, curated_only=True)
         st.write(f"All curated solutions exported to {st.session_state.output_path}")
+    
+    st.subheader("Curation Status Overview")
+
+    # Implement Paginination for efficiency in large folders
+    page_size = 50
+    total_pages = max(1, (len(sample_folders) + page_size - 1) // page_size)
+
+    # Initialize session state for page number
+    if "sample_page" not in st.session_state:
+        st.session_state["sample_page"] = 1
+
+    # Pagination controls
+    col1, col2, col3 = st.columns([1, 1, 3])
+    with col1:
+        if st.button("Previous Page") and st.session_state["sample_page"] > 1:
+            st.session_state["sample_page"] -= 1
+            st.rerun()
+
+    with col2:
+        if st.button("Next Page") and st.session_state["sample_page"] < total_pages:
+            st.session_state["sample_page"] += 1
+            st.rerun()
+    
+    # Compute start and end indices for slicing
+    start_idx = (st.session_state["sample_page"] - 1) * page_size
+    end_idx = min(start_idx + page_size, len(sample_folders))
+
+    # Slice only the relevant folders for the selected page
+    paginated_folders = sample_folders[start_idx:end_idx]
+    with col3:
+        st.write(f"**Page {st.session_state['sample_page']} of {total_pages}, Displaying Samples {start_idx + 1}-{end_idx} of {len(sample_folders)}**")
 
     # Table headers
     cols = st.columns([2, 2, 2, 2])  # Adjust column width ratios
@@ -57,7 +90,7 @@ def display():
         st.write("**Export**")
 
     #Display a button for each sample folder, navigate to curation page when clicked
-    for sample in sample_folders:
+    for sample in paginated_folders:
         
         # Check if the sample has a curated solution
         curated_solution = (
