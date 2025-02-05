@@ -12,7 +12,6 @@ import streamlit as st
 import os
 
 def display():
-
     st.title("Folder Selection")
 
     # Input field for folder path
