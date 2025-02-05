@@ -15,7 +15,7 @@ def display():
     st.write("Please log in to continue.")
 
     # Input field for username
-    username = st.text_input("Enter your name:", key="login_name")
+    username = st.text_input("Enter your username:", key="login_name")
 
     # Login button
     if st.button("Login"):
