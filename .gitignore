@@ -6,3 +6,4 @@ test_app.py
 test_data/*
 ichorCurate_env/*
 curated_solutions/*
+.DS_Store
