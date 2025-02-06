@@ -47,7 +47,7 @@ def display():
         export_all(sample_folders, st.session_state.curated_solutions, sample_directory, st.session_state.output_path, curated_only=True)
         st.write(f"All curated solutions exported to {st.session_state.output_path}")
     
-    st.subheader("Curation Status Overview")
+    st.subheader(f"{st.session_state.selected_project} Curation Status Overview")
 
     # Implement Paginination for efficiency in large folders
     page_size = 50

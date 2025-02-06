@@ -15,6 +15,7 @@ from pages.curation import display as curation_display
 from pages.tracker_dashboard import display as tracker_dashboard_display
 from pages.login import display as login_display
 from pages.folder_selection import display as folder_selection_display
+from pages.projects_overview import display as projects_overview_display
 from src.utils import *
 
 # Setting page formats
@@ -30,6 +31,10 @@ if "logged_in" not in st.session_state:
 # Redirect the user to the login page if they are not logged in
 if not st.session_state.logged_in:
     login_display()
+
+# Redirect the user to the projects overview page if they are logged in and have not selected a project
+elif "selected_project" not in st.session_state or st.session_state.selected_project is None:
+    projects_overview_display()
 
 # Redirect the user to the folder selection page if they have not selected a folder
 elif "selected_folder" not in st.session_state or "output_path" not in st.session_state:
@@ -48,9 +53,9 @@ else:
     if "page" not in st.session_state:
         st.session_state.page = "Tracker Dashboard"
 
-    # Sidebar navigation with automatic selection
-    st.sidebar.title("Navigation")
-    page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1)
+    # # Sidebar navigation with automatic selection
+    # st.sidebar.title("Navigation")
+    # page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1) # TODO update this to incorporate the new pages (or not)
 
     # Logout Button
     if st.sidebar.button("Logout"):
@@ -61,9 +66,21 @@ else:
         st.session_state.page = "Tracker Dashboard"
         st.rerun()
 
-    # Check and update the current page
-    if page != st.session_state.page:
-        st.session_state.page = page  # Sync sidebar selection with session state
+    # Project Reselection
+    if st.session_state.selected_project:
+        st.sidebar.subheader("Project Selection")
+        st.sidebar.write(f"You are currently working on {st.session_state.selected_project}.")
+        if st.sidebar.button("Select New Project"):
+            st.session_state.selected_project = None
+            st.session_state.selected_folder = None
+            st.session_state.output_path = None
+            #Remap the user to the Tracker Dashboard to start
+            st.session_state.page = "Tracker Dashboard"
+            st.rerun()
+
+    # # Check and update the current page
+    # if page != st.session_state.page:
+    #     st.session_state.page = page  # Sync sidebar selection with session state
 
     # Display the page
     if st.session_state.page == "Tracker Dashboard":
