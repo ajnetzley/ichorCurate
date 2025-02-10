@@ -19,16 +19,18 @@ def display():
     """
     Main wrapper for the curation page display.
     """
+    # Extract project
+    project = st.session_state.selected_project
 
     # Extract the sample name that was chosen to navigate here
-    if "selected_sample" not in st.session_state:
+    if "selected_sample" not in st.session_state[project]:
         st.write("No sample selected, return to Tracker Dashboard and select a sample to curate.")
     
     else:
         ############################
         ### LOADING IN THE FILES ###
         ############################
-        sample_name = st.session_state.selected_sample
+        sample_name = st.session_state[project]["selected_sample"]
 
         # Specify the directory containing the genome-wdie PDFs
         genome_wide_directory = os.path.join(st.session_state.selected_folder, sample_name)
@@ -54,16 +56,16 @@ def display():
                 continue #Since all the chromosome plots have the same file name, we only need to find one solution to create the list
 
         # State for tracking which PDF is currently displayed
-        if sample_name not in st.session_state.visualization:
-            st.session_state.visualization[sample_name] = {}
+        if sample_name not in st.session_state[project]["visualization"]:
+            st.session_state[project]["visualization"][sample_name] = {}
 
         #Instantiate the visualization state for the current sample
-        if "pdf_index" not in st.session_state.visualization[sample_name]:
-            st.session_state.visualization[sample_name]["pdf_index"] = 0
-        if "solution_pdf" not in st.session_state.visualization[sample_name]:
-            st.session_state.visualization[sample_name]["solution_pdf"] = None
-        if "current_pdf" not in st.session_state.visualization[sample_name]:
-            st.session_state.visualization[sample_name]["current_pdf"] = None
+        if "pdf_index" not in st.session_state[project]["visualization"][sample_name]:
+            st.session_state[project]["visualization"][sample_name]["pdf_index"] = 0
+        if "solution_pdf" not in st.session_state[project]["visualization"][sample_name]:
+            st.session_state[project]["visualization"][sample_name]["solution_pdf"] = None
+        if "current_pdf" not in st.session_state[project]["visualization"][sample_name]:
+            st.session_state[project]["visualization"][sample_name]["current_pdf"] = None
 
         #########################################
         ### Potential Solutions - Genome-Wide ###
@@ -81,31 +83,31 @@ def display():
         # Display navigation buttons
         col1, col2, col3 = st.columns([1, 2, 1])
         with col1:
-            if button("Previous", "ArrowLeft", None, hint=True) and st.session_state.visualization[sample_name]["pdf_index"] > 0:
-                st.session_state.visualization[sample_name]["pdf_index"] -= 1
+            if button("Previous", "ArrowLeft", None, hint=True) and st.session_state[project]["visualization"][sample_name]["pdf_index"] > 0:
+                st.session_state[project]["visualization"][sample_name]["pdf_index"] -= 1
 
         with col2:
-            if button("Next", "ArrowRight", None, hint=True) and st.session_state.visualization[sample_name]["pdf_index"] < len(sorted_genome_wide_pdf_files) - 1:
-                st.session_state.visualization[sample_name]["pdf_index"] += 1
+            if button("Next", "ArrowRight", None, hint=True) and st.session_state[project]["visualization"][sample_name]["pdf_index"] < len(sorted_genome_wide_pdf_files) - 1:
+                st.session_state[project]["visualization"][sample_name]["pdf_index"] += 1
 
         # Display the current PDF as an image
         if sorted_genome_wide_pdf_files:
-            current_pdf = sorted_genome_wide_pdf_files[st.session_state.visualization[sample_name]["pdf_index"]]
-            st.session_state.visualization[sample_name]["current_pdf"] = current_pdf
+            current_pdf = sorted_genome_wide_pdf_files[st.session_state[project]["visualization"][sample_name]["pdf_index"]]
+            st.session_state[project]["visualization"][sample_name]["current_pdf"] = current_pdf
             file_path = os.path.join(genome_wide_directory, current_pdf)
             pdf_image = get_pdf_first_page_image(file_path)
 
             #st.subheader(f"Displaying {current_pdf}")
-            if st.session_state.visualization[sample_name]["pdf_index"] == 0:
+            if st.session_state[project]["visualization"][sample_name]["pdf_index"] == 0:
                 st.subheader("Default Solution")
             st.image(pdf_image, use_container_width=True)
-
-            st.write(f"Showing Potential Solution {st.session_state.visualization[sample_name]['pdf_index'] + 1} of {len(sorted_genome_wide_pdf_files)}")
+            page_index = st.session_state[project]["visualization"][sample_name]["pdf_index"] + 1
+            st.write(f"Showing Potential Solution {page_index} of {len(sorted_genome_wide_pdf_files)}")
 
             # Button to set the current PDF as the solution
             with col3:
                 if button("Set as Selected Solution", "Enter", None, hint=True):
-                    st.session_state.visualization[sample_name]["solution_pdf"] = current_pdf
+                    st.session_state[project]["visualization"][sample_name]["solution_pdf"] = current_pdf
         else:
             st.write("No Genome-Wide PDF files found.")
 
@@ -114,7 +116,7 @@ def display():
         ############################################
         if chrom_zoom:
             # Display checkboxes for each chromosome, and allow selecting
-            selected_chromosomes, solution_folder_name = select_chromosomes("current", st.session_state.visualization[sample_name]["current_pdf"], genome_wide_directory, sorted_genome_wide_pdf_files, chromosome_pdf_files)
+            selected_chromosomes, solution_folder_name = select_chromosomes("current", st.session_state[project]["visualization"][sample_name]["current_pdf"], genome_wide_directory, sorted_genome_wide_pdf_files, chromosome_pdf_files)
 
             # Display selected PDFs in horizontal layout
             if selected_chromosomes:
@@ -125,7 +127,7 @@ def display():
         ### Reference Curated Solutions ###
         ###################################
         if st.toggle("Reference Curated Solution"):
-            if not st.session_state.curated_solutions:
+            if not st.session_state[project]["curated_solutions"]:
                 st.write(f"No curated solutions found for user {st.session_state.username}.")
             else:
                 st.subheader("Reference Curated Solution")
@@ -133,7 +135,7 @@ def display():
                 # Extract all of the curated samples by that user
                 samples_from_user = [
                     curated_sample
-                    for curated_sample, usernames in st.session_state.curated_solutions.items()
+                    for curated_sample, usernames in st.session_state[project]["curated_solutions"].items()
                     if st.session_state.username in usernames
                 ]
 
@@ -144,7 +146,7 @@ def display():
                     )
 
                 for reference_sample in options:
-                    solution_path = os.path.join(st.session_state.selected_folder, reference_sample, st.session_state.curated_solutions[reference_sample][st.session_state.username])
+                    solution_path = os.path.join(st.session_state.selected_folder, reference_sample, st.session_state[project]["curated_solutions"][reference_sample][st.session_state.username])
                     solution_image = get_pdf_first_page_image(solution_path)
                     #st.write(f"Solution PDF: {st.session_state.solution_pdf}")
                     st.image(solution_image, use_container_width=True)
@@ -155,12 +157,12 @@ def display():
         st.subheader("Selected Solution")
 
         # Display the selected solution PDF if selection has occured
-        if st.session_state.visualization[sample_name]["solution_pdf"]:
+        if st.session_state[project]["visualization"][sample_name]["solution_pdf"]:
 
             ########################################
             ### Selected Solutions - Genome-Wide ###
             ########################################
-            solution_path = os.path.join(genome_wide_directory, st.session_state.visualization[sample_name]["solution_pdf"])
+            solution_path = os.path.join(genome_wide_directory, st.session_state[project]["visualization"][sample_name]["solution_pdf"])
             solution_image = get_pdf_first_page_image(solution_path)
             #st.write(f"Solution PDF: {st.session_state.solution_pdf}")
             st.image(solution_image, use_container_width=True)
@@ -170,7 +172,7 @@ def display():
             ###########################################
             if chrom_zoom:
                 # Display checkboxes for each chromosome, and allow selecting
-                selected_chromosomes, solution_folder_name = select_chromosomes("selected", st.session_state.visualization[sample_name]["solution_pdf"], genome_wide_directory, sorted_genome_wide_pdf_files, chromosome_pdf_files)
+                selected_chromosomes, solution_folder_name = select_chromosomes("selected", st.session_state[project]["visualization"][sample_name]["solution_pdf"], genome_wide_directory, sorted_genome_wide_pdf_files, chromosome_pdf_files)
 
                 # Display selected PDFs in horizontal layout
                 if selected_chromosomes:
@@ -183,15 +185,15 @@ def display():
             if button("Select as Curated Solution", "Ctrl+Enter", None, hint=True):
 
                 # Intiialize the sample in the curated solutions dict if it has not already been curated
-                if sample_name not in st.session_state.curated_solutions:
-                    st.session_state.curated_solutions[sample_name] = {}
+                if sample_name not in st.session_state[project]["curated_solutions"]:
+                    st.session_state[project]["curated_solutions"][sample_name] = {}
 
                 # Intialize the user profile in session state if it doesn't exist
-                if st.session_state.username not in st.session_state.curated_solutions[sample_name]:
-                    st.session_state.curated_solutions[sample_name][st.session_state.username] = {}
+                if st.session_state.username not in st.session_state[project]["curated_solutions"][sample_name]:
+                    st.session_state[project]["curated_solutions"][sample_name][st.session_state.username] = {}
 
                 # Save the selected solution in session state
-                st.session_state.curated_solutions[sample_name][st.session_state.username] = st.session_state.visualization[sample_name]["solution_pdf"]
+                st.session_state[project]["curated_solutions"][sample_name][st.session_state.username] = st.session_state[project]["visualization"][sample_name]["solution_pdf"]
 
                 st.session_state.page = "Tracker Dashboard" # Navigate back to the tracker dashboard
                 st.rerun()  # Refresh the app to load the tracker dashboard page

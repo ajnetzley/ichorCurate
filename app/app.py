@@ -24,6 +24,9 @@ st.set_page_config(layout="wide")
 # Title of the app
 st.title('ichorCurate')
 
+# Map to backend location
+st.session_state.backend = "/fh/fast/ha_g/user/anetzley/ichorCurate-backend"
+
 # Initialize session for login
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -32,22 +35,26 @@ if "logged_in" not in st.session_state:
 if not st.session_state.logged_in:
     login_display()
 
+# # Load in the Backend Data
+# elif "cache" not in st.session_state:
+#     st.session_state.cache = True
+
 # Redirect the user to the projects overview page if they are logged in and have not selected a project
-elif "selected_project" not in st.session_state or st.session_state.selected_project is None:
+elif ("selected_project" not in st.session_state or st.session_state.selected_project is None) and st.session_state.logged_in == True:
     projects_overview_display()
 
 # Redirect the user to the folder selection page if they have not selected a folder
-elif "selected_folder" not in st.session_state or "output_path" not in st.session_state:
+elif ("selected_folder" not in st.session_state or "output_path" not in st.session_state) and st.session_state.logged_in == True:
     folder_selection_display()
 
 else:
     # Initialize curated solutions in session state if it doesn't exist
-    if "curated_solutions" not in st.session_state:
-        st.session_state.curated_solutions = {}
+    if "curated_solutions" not in st.session_state[st.session_state.selected_project]: 
+        st.session_state[st.session_state.selected_project]["curated_solutions"] = {}
 
     # Initialize visualization state in session state if it doesn't exist
-    if "visualization" not in st.session_state:
-        st.session_state.visualization = {}
+    if "visualization" not in st.session_state[st.session_state.selected_project]:
+        st.session_state[st.session_state.selected_project]["visualization"] = {}
 
     #Direct users to the tracker dashboard unless curation has been specified
     if "page" not in st.session_state:
@@ -83,7 +90,7 @@ else:
     #     st.session_state.page = page  # Sync sidebar selection with session state
 
     # Display the page
-    if st.session_state.page == "Tracker Dashboard":
+    if st.session_state.page == "Tracker Dashboard" and st.session_state.logged_in == True:
         tracker_dashboard_display()
-    elif st.session_state.page == "Curation":
+    elif st.session_state.page == "Curation" and st.session_state.logged_in == True:
         curation_display()

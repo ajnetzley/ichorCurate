@@ -14,8 +14,11 @@ import yaml
 import json
 import math
 
+# Import user modules
+from src.utils import load_curated_solutions
+
 # Function to load the YAML config file
-def load_config(config_path="/fh/fast/ha_g/user/anetzley/ichorCurate-backend/config.yaml"):
+def load_config(config_path):
     with open(config_path, "r") as file:
         return yaml.safe_load(file)
     
@@ -35,13 +38,10 @@ def count_curated_samples(metadata_path):
             return str(0)
     return str(0)
 
-# Load the config at the start of the app
-config = load_config()
-
 def display():
     st.title("Projects Overview")
 
-    config = load_config()
+    config = load_config(os.path.join(st.session_state.backend, "config.yaml"))
 
     # Table headers
     cols = st.columns([2, 2, 1, 1, 2, 2])  # Adjust column width ratios
@@ -60,6 +60,11 @@ def display():
 
     # Display a row for each project
     for project_name, project_info in config["projects"].items():
+        #Instantiate a separate session state for each project and load in the existing solutions from the metadata
+        if project_name not in st.session_state:
+            st.session_state[project_name] = {}
+            load_curated_solutions(st.session_state.backend, project_name)
+
         data_path = project_info["data_path"]
         metadata_path = project_info["metadata_path"]
         
