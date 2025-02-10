@@ -15,6 +15,39 @@ import streamlit as st
 import os
 import shutil
 
+
+###########################
+### project_overview.py ###
+###########################
+
+# Function to load the curated solutions from the metadata file
+def load_curated_solutions(directory, project):
+    summary_file_path = os.path.join(directory, project, "curation_summary.txt")
+    
+    if os.path.exists(summary_file_path):
+        with open(summary_file_path, 'r') as file:
+            lines = file.readlines()[1:]  # Skip header
+
+            for line in lines:
+                parts = line.strip().split("\t")
+                if len(parts) == 4 and parts[1] != "None":
+                    sample, formatted_solution_name, user, curated_solution_filename = parts
+
+                    # Read the existing summary into the session state
+                    if "curated_solutions" not in st.session_state[project]:
+                        st.session_state[project]["curated_solutions"] = {}
+
+                    # Populate curated_solutions state with existing solutions
+                    if sample not in st.session_state[project]["curated_solutions"]:
+                        st.session_state[project]["curated_solutions"][sample] = {}
+
+                    st.session_state[project]["curated_solutions"][sample][user] = curated_solution_filename
+
+
+###################
+### curation.py ###
+###################
+
 # Function to find the default solution and sort the genome wide pdfs so the optimal is listed first
 def promote_default_pdf(genome_wide_directory, genome_wide_pdf_files):
         # Find the "optimal" subfolder and extract n and p values
@@ -119,6 +152,17 @@ def display_chromosome_plots(selected_chromosomes, genome_wide_directory, soluti
             else:
                 st.write(f"Chromosome {extract_chromosome_number(pdf_file)} PDF not found.")
 
+
+############################
+### tracker_dashboard.py ###
+############################
+
+# Function to extract and sort the sample folders from the filepath
+def get_folders(directory):
+    return sorted(
+        (entry.name for entry in os.scandir(directory) if entry.is_dir())
+    )
+    
 # Function to generate the output folder locations, prior to writing to them
 def generate_output_folders(output_directory, project):
     # Create the output directory if it doesn't exist # TODO I feel like this won't work if the output path is relative vs gloabl, need to double check this
@@ -214,59 +258,6 @@ def get_tfx_and_ploidy(sample, sample_directory, match):
     ploidy = lines[1].strip().split("\t")[2]
 
     return tumor_fraction, ploidy
-
-# Function to load the summary file if it exists
-def load_existing_summary(output_directory, project):
-    summary_file_path = os.path.join(output_directory, project, "curation_summary.txt")
-    
-    existing_summary = []
-    if os.path.exists(summary_file_path):
-        with open(summary_file_path, 'r') as file:
-            lines = file.readlines()[1:]  # Skip header
-
-            for line in lines:
-                parts = line.strip().split("\t")
-                if len(parts) == 4 and parts[1] != "None":
-                    sample, formatted_solution_name, user, curated_solution_filename = parts
-
-                    # Read the existing summary into the session state
-                    if "curated_solutions" not in st.session_state[st.session_state.selected_project]:
-                        st.session_state[st.session_state.selected_project]["curated_solutions"] = {}
-
-                    # Populate curated_solutions state with existing solutions
-                    if sample not in st.session_state[st.session_state.selected_project]["curated_solutions"]:
-                        st.session_state[st.session_state.selected_project]["curated_solutions"][sample] = {}
-
-                    existing_summary.append(f"{sample}\t{formatted_solution_name}\t{user}\t{curated_solution_filename}")
-                    st.session_state[st.session_state.selected_project]["curated_solutions"][sample][user] = curated_solution_filename
-                else:
-                    existing_summary.append(f"{parts[0]}\tNone\tNone\tNone")
-    
-    return existing_summary
-
-# Function to load the curated solutions from the metadata file
-def load_curated_solutions(directory, project):
-    summary_file_path = os.path.join(directory, project, "curation_summary.txt")
-    
-    if os.path.exists(summary_file_path):
-        with open(summary_file_path, 'r') as file:
-            lines = file.readlines()[1:]  # Skip header
-
-            for line in lines:
-                parts = line.strip().split("\t")
-                if len(parts) == 4 and parts[1] != "None":
-                    sample, formatted_solution_name, user, curated_solution_filename = parts
-
-                    # Read the existing summary into the session state
-                    if "curated_solutions" not in st.session_state[project]:
-                        st.session_state[project]["curated_solutions"] = {}
-
-                    # Populate curated_solutions state with existing solutions
-                    if sample not in st.session_state[project]["curated_solutions"]:
-                        st.session_state[project]["curated_solutions"][sample] = {}
-
-                    st.session_state[project]["curated_solutions"][sample][user] = curated_solution_filename
-
 
 # Function to collect summary information
 def populate_summary(sample_folders, sample_directory, curated_solutions):

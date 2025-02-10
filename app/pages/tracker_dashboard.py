@@ -32,8 +32,7 @@ def display():
     # Instantiate the output path for exporting files
     os.makedirs(st.session_state.output_path, exist_ok=True) 
 
-    #Generate the summary
-    #summary = load_existing_summary(st.session_state.output_path, project)
+    # Generate the summary
     summary = populate_summary(sample_folders, sample_directory, st.session_state[project]["curated_solutions"])
 
     #Generate output folders
@@ -155,9 +154,6 @@ def display():
                 with cols[3]:
                     if st.button("Remove Curation", key=f"clear_{sample}_{users[i]}"):
                         st.session_state[project]["curated_solutions"][sample].pop(users[i])
-
-                        #Auto-Log to the backend the summary file
-                        generate_summary_file(summary, st.session_state.backend, st.session_state.selected_project)
                         st.rerun()
 
                 # Column 5: Export Button
