@@ -13,19 +13,14 @@ import os
 import re
 
 # Import user modules
-from src.utils import get_tfx_and_ploidy, populate_summary, generate_summary_file, export, export_all, generate_output_folders, load_existing_summary
+from src.utils import get_folders, get_tfx_and_ploidy, populate_summary, generate_summary_file, export, export_all, generate_output_folders, load_existing_summary
 
 def display():
     st.subheader("Tracker Dashboard")
-    project = st.session_state.selected_project
 
     # Create a button for each sample in the data directory
+    project = st.session_state.selected_project
     sample_directory = st.session_state.selected_folder 
-
-    def get_folders(directory):
-        return sorted(
-            (entry.name for entry in os.scandir(directory) if entry.is_dir())
-        )
 
     sample_folders = get_folders(sample_directory)
 
