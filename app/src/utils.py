@@ -8,18 +8,68 @@ This module provides helper functions for the ichorCurate app.
 """
 # Import packages
 import fitz  # PyMuPDF
-import plotly.express as px
 from PIL import Image
 import re
 import streamlit as st
 import os
 import shutil
+import math
+import datetime
+import yaml
 
 
 ###########################
 ### project_overview.py ###
 ###########################
+# Function to load the YAML config file
+def load_config(config_path):
+    with open(config_path, "r") as file:
+        return yaml.safe_load(file)
+    
+# Function to count the number of samples (example: count files in data_path)
+def count_samples(data_path):
+    return str(math.floor(len(os.listdir(data_path))/4)) if os.path.exists(data_path) else 0
 
+# Function to count curated samples (assumes curated samples are stored in metadata)
+def count_curated_samples(summary_path):
+    if os.path.exists(summary_path):
+        with open(summary_path, "r") as file:
+            lines = file.readlines()
+        curated_samples = set() #only count unqiue samples
+
+        for line in lines[1:]:
+            parts = line.strip().split("\t")
+            sample_name, curation_status, user, solution_filename = parts
+            if curation_status != "None":
+                curated_samples.add(sample_name)
+        return str(len(curated_samples)) 
+        
+    return str(0)
+
+# Function to extract the users who have curated samples
+def get_curating_users(summary_path):
+    if os.path.exists(summary_path):
+        with open(summary_path, "r") as file:
+            lines = file.readlines()
+        users = set()
+
+        for line in lines[1:]:
+            parts = line.strip().split("\t")
+            sample_name, curation_status, user, solution_filename = parts
+            if curation_status != "None":
+                users.add(user)
+        return ", ".join(users)
+        
+    return ""
+
+# Function to extract the time of the latest update
+def get_latest_update(summary_path):
+    if os.path.exists(summary_path):
+        mod_time = os.path.getmtime(summary_path)
+        return datetime.datetime.fromtimestamp(mod_time)
+    else:
+        return ""
+    
 # Function to load the curated solutions from the metadata file
 def load_curated_solutions(directory, project):
     summary_file_path = os.path.join(directory, project, "curation_summary.txt")

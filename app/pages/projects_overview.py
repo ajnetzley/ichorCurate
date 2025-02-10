@@ -10,33 +10,9 @@ This module provides the logic for the projects overview page of the ichorCurate
 # Import packages
 import streamlit as st
 import os
-import yaml
-import json
-import math
 
 # Import user modules
-from src.utils import load_curated_solutions
-
-# Function to load the YAML config file
-def load_config(config_path):
-    with open(config_path, "r") as file:
-        return yaml.safe_load(file)
-    
-# Function to count the number of samples (example: count files in data_path)
-def count_samples(data_path):
-    return str(math.floor(len(os.listdir(data_path))/4)) if os.path.exists(data_path) else 0
-
-# Function to count curated samples (assumes curated samples are stored in metadata)
-def count_curated_samples(metadata_path):
-    if os.path.exists(metadata_path):
-        try:
-            with open(metadata_path, "r") as meta_file:
-                metadata = json.load(meta_file)
-            return len(metadata.get("curated_samples", []))  # Adjust based on your metadata structure
-        except Exception as e:
-            st.error(f"Could not load metadata: {e}")
-            return str(0)
-    return str(0)
+from src.utils import load_config, count_samples, count_curated_samples, get_curating_users, get_latest_update, load_curated_solutions
 
 def display():
     st.title("Projects Overview")
@@ -68,9 +44,6 @@ def display():
         data_path = project_info["data_path"]
         metadata_path = project_info["metadata_path"]
         
-        num_samples = count_samples(data_path)
-        num_curated_samples = count_curated_samples(metadata_path)
-
         # Create a new row for the project
         cols = st.columns([2, 2, 1, 1, 2, 2]) 
 
@@ -88,11 +61,19 @@ def display():
 
         # Column 3: Number of Samples
         with cols[2]:
-            st.write(num_samples)
+            st.write(count_samples(data_path))
 
         # Column 4: Number of Curated Samples
         with cols[3]:
-            st.write(num_curated_samples)
+            st.write(count_curated_samples(metadata_path))
+
+        # Column 5: Number of Curated Samples
+        with cols[4]:
+            st.write(get_curating_users(metadata_path))
+
+        # Column 6: Latest Update
+        with cols[5]:
+            st.write(get_latest_update(metadata_path))
 
         # Add a divider between projects
         st.divider()
