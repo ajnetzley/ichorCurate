@@ -11,7 +11,6 @@ This module provides the logic for the projects overview page of the ichorCurate
 import streamlit as st
 import yaml
 import os
-from streamlit_modal import Modal
 
 # Import user modules
 from src.utils import load_config, count_samples, count_curated_samples, get_curating_users, get_latest_update, load_curated_solutions
@@ -111,7 +110,6 @@ def display():
 
         # Add a divider between projects
         st.divider()
-
 
      # Form to create a new project
     with st.expander("➕ Create New Project"):
