@@ -72,7 +72,6 @@ def display():
         #########################################
 
         # # Navigation Controls Column
-        # with col_nav:
         st.subheader(f"Potential Solutions for Sample: {sample_name}")
 
         # Toggle for enabling chromosome zoom
@@ -139,16 +138,11 @@ def display():
                     if st.session_state.username in usernames
                 ]
 
-                options = st.multiselect(
-                    "Select Reference Curated Solution", 
-                    samples_from_user,
-                    label_visibility="collapsed"
-                    )
+                options = st.multiselect("Select Reference Curated Solution", samples_from_user, label_visibility="collapsed")
 
                 for reference_sample in options:
                     solution_path = os.path.join(st.session_state.selected_folder, reference_sample, st.session_state[project]["curated_solutions"][reference_sample][st.session_state.username])
                     solution_image = get_pdf_first_page_image(solution_path)
-                    #st.write(f"Solution PDF: {st.session_state.solution_pdf}")
                     st.image(solution_image, use_container_width=True)
 
         ##########################

@@ -35,10 +35,6 @@ if "logged_in" not in st.session_state:
 if not st.session_state.logged_in:
     login_display()
 
-# # Load in the Backend Data
-# elif "cache" not in st.session_state:
-#     st.session_state.cache = True
-
 # Redirect the user to the projects overview page if they are logged in and have not selected a project
 elif ("selected_project" not in st.session_state or st.session_state.selected_project is None) and st.session_state.logged_in == True:
     projects_overview_display()
@@ -60,10 +56,6 @@ else:
     if "page" not in st.session_state:
         st.session_state.page = "Tracker Dashboard"
 
-    # # Sidebar navigation with automatic selection
-    # st.sidebar.title("Navigation")
-    # page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1) # TODO update this to incorporate the new pages (or not)
-
     # Logout Button
     if st.sidebar.button("Logout"):
         st.session_state.logged_in = False
@@ -84,10 +76,6 @@ else:
             #Remap the user to the Tracker Dashboard to start
             st.session_state.page = "Tracker Dashboard"
             st.rerun()
-
-    # # Check and update the current page
-    # if page != st.session_state.page:
-    #     st.session_state.page = page  # Sync sidebar selection with session state
 
     # Display the page
     if st.session_state.page == "Tracker Dashboard" and st.session_state.logged_in == True:
