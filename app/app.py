@@ -40,7 +40,7 @@ elif ("selected_project" not in st.session_state or st.session_state.selected_pr
     projects_overview_display()
 
 # Redirect the user to the folder selection page if they have not selected an output path
-elif "output_path" not in st.session_state and st.session_state.logged_in == True:
+elif ("output_path" not in st.session_state or st.session_state.output_path is None) and st.session_state.logged_in == True:
     folder_selection_display()
 
 else:
@@ -72,6 +72,15 @@ else:
         if st.sidebar.button("Select New Project"):
             st.session_state.selected_project = None
             st.session_state.selected_folder = None
+            #Remap the user to the Tracker Dashboard to start
+            st.session_state.page = "Tracker Dashboard"
+            st.rerun()
+
+    # Output Path Reselection
+    if st.session_state.output_path:
+        st.sidebar.subheader("Output Path Selection")
+        st.sidebar.write(f"Your output path is {st.session_state.output_path}.")
+        if st.sidebar.button("Select New Output Path"):
             st.session_state.output_path = None
             #Remap the user to the Tracker Dashboard to start
             st.session_state.page = "Tracker Dashboard"

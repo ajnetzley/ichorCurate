@@ -41,17 +41,21 @@ def display():
             output_path += "/"
         if output_path[0] != "/":
             output_path = "/" + output_path
-            
-        # Validate if the folder exists
+        
+        # Instantiate the output path for exporting files
+        os.makedirs(output_path, exist_ok=True) 
+        
+        # Validate the folder was successfully made
         if os.path.exists(output_path) and os.path.isdir(output_path):
                 st.session_state.output_path = output_path
                 st.success(f"Folder '{output_path}' selected successfully!")
+
         else:
             st.error(f"The folder '{output_path}' does not exist. Please enter a new folder path.")
     else:
         st.warning("Please provide a valid folder path.")
 
     #Once these are completed navigate to tracker dashboard
-    if "output_path" in st.session_state:
+    if "output_path" in st.session_state and st.session_state["output_path"] is not None:
         st.rerun()  # Refresh app to redirect after login
         

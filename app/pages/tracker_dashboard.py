@@ -24,9 +24,6 @@ def display():
 
     sample_folders = get_folders(sample_directory)
 
-    # Instantiate the output path for exporting files
-    os.makedirs(st.session_state.output_path, exist_ok=True) 
-
     # Generate the summary
     summary = populate_summary(sample_folders, sample_directory, st.session_state[project]["curated_solutions"])
 
@@ -44,11 +41,11 @@ def display():
 
     if st.button("Export All Samples"):
         export_all(sample_folders, st.session_state[project]["curated_solutions"], sample_directory, st.session_state.output_path, project)
-        st.write(f"All solutions exported to {st.session_state.output_path}")
+        st.write(f"All solutions exported to {os.path.join(st.session_state.output_path, project)}")
 
     if st.button("Export All Curated Samples"):
         export_all(sample_folders, st.session_state[project]["curated_solutions"], sample_directory, st.session_state.output_path, project, curated_only=True)
-        st.write(f"All curated solutions exported to {st.session_state.output_path}")
+        st.write(f"All curated solutions exported to {os.path.join(st.session_state.output_path, project)}")
     
     st.subheader(f"{project} Curation Status Overview")
 
