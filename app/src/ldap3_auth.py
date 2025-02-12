@@ -1,6 +1,7 @@
 """
 ldap3_auth.py
-v0.1.0, 2/12/2025
+v1.0.0, 2/12/2025
+Branch: fredhutch-deployment
 Author: Dan Tenenbaum, scicomp@fredhutch.org
 Maintainer: Alexander Netzley, anetzley@fredhutch.org
 Scientific Computing, Fred Hutchinson Cancer Research Center

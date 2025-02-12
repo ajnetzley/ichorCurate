@@ -1,6 +1,7 @@
 """
 utils.py
-v0.2.0, 1/15/2025
+v1.0.0, 2/12/2025
+Branch: fredhutch-deployment
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
@@ -16,7 +17,6 @@ import shutil
 import math
 import datetime
 import yaml
-
 
 ###########################
 ### project_overview.py ###
