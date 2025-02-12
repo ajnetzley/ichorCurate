@@ -43,11 +43,11 @@ def display():
         st.write(f"Summary file generated at {os.path.join(st.session_state.output_path, project, 'curation_summary.txt')}")
 
     if st.button("Export All Samples"):
-        export_all(sample_folders, st.session_state[project]["curated_solutions"], sample_directory, st.session_state.output_path)
+        export_all(sample_folders, st.session_state[project]["curated_solutions"], sample_directory, st.session_state.output_path, project)
         st.write(f"All solutions exported to {st.session_state.output_path}")
 
     if st.button("Export All Curated Samples"):
-        export_all(sample_folders, st.session_state[project]["curated_solutions"], sample_directory, st.session_state.output_path, curated_only=True)
+        export_all(sample_folders, st.session_state[project]["curated_solutions"], sample_directory, st.session_state.output_path, project, curated_only=True)
         st.write(f"All curated solutions exported to {st.session_state.output_path}")
     
     st.subheader(f"{project} Curation Status Overview")
