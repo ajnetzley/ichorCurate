@@ -56,7 +56,7 @@ def display():
             if st.button(project_name, key=f"project_{project_name}"):
                 st.session_state.selected_project = project_name
                 st.session_state.selected_folder = data_path
-                st.session_state.output_path = "curated_solutions"
+                #st.session_state.output_path = "curated_solutions"
                 st.rerun()
 
         # Column 2: Data Path
