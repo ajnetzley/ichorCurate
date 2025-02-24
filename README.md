@@ -58,4 +58,4 @@ After curating, you can select the "export" button to export the curated solutio
 ```
 
 ## Acknowledgments
-ichorCurate is developed by Alexander Netzley, on behalf of the Gavin Ha Lab at Fred Hutch Cancer Center
+ichorCurate is developed by Alexander Netzley, on behalf of the Gavin Ha Lab at Fred Hutchinson Cancer Center

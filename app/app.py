@@ -12,11 +12,11 @@ This module provides the wrapper function for running the ichorCurate app.
 import streamlit as st
 
 # Import user modules
-from pages.curation import display as curation_display
-from pages.tracker_dashboard import display as tracker_dashboard_display
-from pages.login import display as login_display
-from pages.folder_selection import display as folder_selection_display
-from pages.projects_overview import display as projects_overview_display
+from subpages.curation import display as curation_display
+from subpages.tracker_dashboard import display as tracker_dashboard_display
+from subpages.login import display as login_display
+from subpages.folder_selection import display as folder_selection_display
+from subpages.projects_overview import display as projects_overview_display
 from src.utils import *
 
 # Setting page formats
@@ -91,4 +91,9 @@ else:
     if st.session_state.page == "Tracker Dashboard" and st.session_state.logged_in == True:
         tracker_dashboard_display()
     elif st.session_state.page == "Curation" and st.session_state.logged_in == True:
+        # Allow users to navigate back without curation
+        if st.sidebar.button("Return to Tracker Dashboard"):
+            st.session_state.page = "Tracker Dashboard"
+            st.rerun()
+
         curation_display()
