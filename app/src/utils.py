@@ -95,6 +95,17 @@ def load_curated_solutions(directory, project):
                     st.session_state[project]["curated_solutions"][sample][user] = curated_solution_filename
 
 
+# Function to ensure filepath starts and ends with a '/'
+def format_filepath(filepath):
+    if filepath:
+        # Add a leading and trailing "/" if not present
+        if filepath[-1] != "/":
+            filepath += "/"
+        if filepath[0] != "/":
+            filepath = "/" + filepath
+    return filepath
+
+
 ###################
 ### curation.py ###
 ###################
