@@ -59,7 +59,7 @@ def display():
         st.session_state[project]["sample_page"] = 1
 
     # Pagination controls
-    col1, col2, col3 = st.columns([1, 1, 3])
+    col1, col2, col3, col4 = st.columns([1, 1, 2, 1])
     with col1:
         if st.button("Previous Page") and st.session_state[project]["sample_page"] > 1:
             st.session_state[project]["sample_page"] -= 1
@@ -78,9 +78,18 @@ def display():
     paginated_folders = sample_folders[start_idx:end_idx]
     with col3:
         st.write(f"**Page {st.session_state[project]['sample_page']} of {total_pages}, Displaying Samples {start_idx + 1}-{end_idx} of {len(sample_folders)}**")
+    
+    # Initialize session state for hiding curated solutions
+    if "hide_curated" not in st.session_state[project]:
+        st.session_state[project]["hide_curated"] = False  # Default value
+
+    # Allow users to hide curated solutions on this page
+    with col4:
+        st.session_state[project]["hide_curated"] = st.toggle("Hide Curated Solutions")
+
 
     # Table headers
-    cols = st.columns([2, 2, 2, 1, 2])  # Adjust column width ratios
+    cols = st.columns([2, 2, 2, 2, 1, 2])  # Adjust column width ratios
     with cols[0]:
         st.write("**Sample**")
     with cols[1]:
@@ -88,8 +97,10 @@ def display():
     with cols[2]:
         st.write("**User**")
     with cols[3]:
-        st.write("**Clear**")
+        st.write("**Timestamp**")
     with cols[4]:
+        st.write("**Clear**")
+    with cols[5]:
         st.write("**Export**")
 
     #Display a button for each sample folder, navigate to curation page when clicked
@@ -105,7 +116,8 @@ def display():
         #Extract the users and curated solutions, if curation has been performed
         if curated_solution:
             users = list(st.session_state[project]["curated_solutions"][sample].keys())
-            solutions = list((st.session_state[project]["curated_solutions"][sample].values()))
+            solutions = [entry["solution_pdf"] for entry in curated_solution.values()]  # Extract solution_pdf
+            timestamps = [entry["timestamp"] for entry in curated_solution.values()]  # Extract timestamps
             num_curations = len(users)
         else:
             num_curations = 0
@@ -114,7 +126,7 @@ def display():
         if curated_solution:
             for i in range(num_curations):
                 # Create a row
-                cols = st.columns([2, 2, 2, 1, 2])
+                cols = st.columns([2, 2, 2, 2, 1, 2])
 
                 #Extract and format the solution name from the pdf file name
                 match = re.search(r"n([\d.]+)-p(\d+)\.pdf$", solutions[i])
@@ -136,29 +148,38 @@ def display():
                 # Column 2: Curated Solution
                 with cols[1]:
                     # Display a green letters and solution name
-                    st.success(f"Selected: {formatted_solution_name}")
+                    if st.session_state[project]["hide_curated"]:
+                        st.success("Curated Solution Hidden")
+                    else:
+                        st.success(f"Selected: {formatted_solution_name}")
 
                 # Column 3: User
                 with cols[2]:
-                    # Display a green letters and solution name
                     st.success(f"Curated by: {users[i]}")
-                
-                # Column 4: Clear Button
+
+                # Column 4: Timestamp
                 with cols[3]:
+                    st.success(f"{timestamps[i]}")
+                
+                # Column 5: Clear Button
+                with cols[4]:
                     if st.button("Remove Curation", key=f"clear_{sample}_{users[i]}"):
                         st.session_state[project]["curated_solutions"][sample].pop(users[i])
                         st.rerun()
 
-                # Column 5: Export Button
-                with cols[4]: 
-                    if st.button(f"Export Curated Solution ({formatted_solution_name})", key=f"export_{sample}_{users[i]}"):
-                        st.write(f"Exported Curated Solution ({formatted_solution_name}) for {sample}")
+                # Column 6: Export Button
+                with cols[5]: 
+                    if st.session_state[project]["hide_curated"]:
+                        st.write("Curated Solution Hidden")
+                    else:
+                        if st.button(f"Export Curated Solution ({formatted_solution_name})", key=f"export_{sample}_{users[i]}"):
+                            st.write(f"Exported Curated Solution ({formatted_solution_name}) for {sample}")
 
-                        export(sample, sample_directory, st.session_state.output_path, st.session_state.selected_project, solutions[i][-11:-4])#TODO fix to remove sample
+                            export(sample, sample_directory, st.session_state.output_path, st.session_state.selected_project, solutions[i][-11:-4])#TODO fix to remove sample
                 
         else:
             # Create a row
-            cols = st.columns([2, 2, 2, 1, 2])
+            cols = st.columns([2, 2, 2, 2, 1, 2])
 
             # Column 1: Sample Button
             with cols[0]:
@@ -168,8 +189,8 @@ def display():
                     st.session_state.page = "Curation"
                     st.rerun()  # Refresh the app to load the curation page
             
-            # Column 4: Export Button for default export
-            with cols[4]: 
+            # Column 6: Export Button for default export
+            with cols[5]: 
                 if st.button(f"Export Default Solution", key=f"export_{sample}"):
                     st.write(f"Exported default solution for {sample}")
 

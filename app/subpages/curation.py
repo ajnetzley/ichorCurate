@@ -11,6 +11,7 @@ This module provides the main logic for the curation page of the ichorCurate app
 # Import packages
 import streamlit as st
 import os
+import datetime
 from streamlit_shortcuts import button
 
 # Import user modules
@@ -128,21 +129,16 @@ def display():
         ###################################
         if st.toggle("Reference Curated Solution"):
             if not st.session_state[project]["curated_solutions"]:
-                st.write(f"No curated solutions found for user {st.session_state.username}.")
+                st.write(f"No curated solutions found.")
             else:
                 st.subheader("Reference Curated Solution")
 
-                # Extract all of the curated samples by that user
-                samples_from_user = [
-                    curated_sample
-                    for curated_sample, usernames in st.session_state[project]["curated_solutions"].items()
-                    if st.session_state.username in usernames
-                ]
-
-                options = st.multiselect("Select Reference Curated Solution", samples_from_user, label_visibility="collapsed")
+                curated_list = [f"{curated_sample}, {username}" for curated_sample, user_list in st.session_state[project]["curated_solutions"].items() for username in user_list]
+                options = st.multiselect("Select Reference Curated Solution", curated_list, label_visibility="collapsed")
 
                 for reference_sample in options:
-                    solution_path = os.path.join(st.session_state.selected_folder, reference_sample, st.session_state[project]["curated_solutions"][reference_sample][st.session_state.username])
+                    reference_sample, username = reference_sample.split(", ")
+                    solution_path = os.path.join(st.session_state.selected_folder, reference_sample, st.session_state[project]["curated_solutions"][reference_sample][username])
                     solution_image = get_pdf_first_page_image(solution_path)
                     st.image(solution_image, use_container_width=True)
 
@@ -188,7 +184,9 @@ def display():
                     st.session_state[project]["curated_solutions"][sample_name][st.session_state.username] = {}
 
                 # Save the selected solution in session state
-                st.session_state[project]["curated_solutions"][sample_name][st.session_state.username] = st.session_state[project]["visualization"][sample_name]["solution_pdf"]
+                st.session_state[project]["curated_solutions"][sample_name][st.session_state.username] = {
+                    "solution_pdf": st.session_state[project]["visualization"][sample_name]["solution_pdf"],
+                    "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
                 st.session_state.page = "Tracker Dashboard" # Navigate back to the tracker dashboard
                 st.rerun()  # Refresh the app to load the tracker dashboard page
