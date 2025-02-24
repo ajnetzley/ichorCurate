@@ -40,7 +40,7 @@ def count_curated_samples(summary_path):
 
         for line in lines[1:]:
             parts = line.strip().split("\t")
-            sample_name, curation_status, user, solution_filename = parts
+            sample_name, curation_status, user, solution_filename, timestamp = parts
             if curation_status != "None":
                 curated_samples.add(sample_name)
         return str(len(curated_samples)) 
@@ -56,7 +56,7 @@ def get_curating_users(summary_path):
 
         for line in lines[1:]:
             parts = line.strip().split("\t")
-            sample_name, curation_status, user, solution_filename = parts
+            sample_name, curation_status, user, solution_filename, timestamp = parts
             if curation_status != "None":
                 users.add(user)
         return ", ".join(users)
@@ -81,8 +81,8 @@ def load_curated_solutions(directory, project):
 
             for line in lines:
                 parts = line.strip().split("\t")
-                if len(parts) == 4 and parts[1] != "None":
-                    sample, formatted_solution_name, user, curated_solution_filename = parts
+                if len(parts) == 5 and parts[1] != "None":
+                    sample, formatted_solution_name, user, curated_solution_filename, timestamp = parts
 
                     # Read the existing summary into the session state
                     if "curated_solutions" not in st.session_state[project]:
@@ -92,8 +92,7 @@ def load_curated_solutions(directory, project):
                     if sample not in st.session_state[project]["curated_solutions"]:
                         st.session_state[project]["curated_solutions"][sample] = {}
 
-                    st.session_state[project]["curated_solutions"][sample][user] = curated_solution_filename
-
+                    st.session_state[project]["curated_solutions"][sample][user] = {"solution_pdf": curated_solution_filename, "timestamp": timestamp}
 
 # Function to ensure filepath starts and ends with a '/'
 def format_filepath(filepath):
@@ -339,16 +338,17 @@ def populate_summary(sample_folders, sample_directory, curated_solutions):
 
         if curated_solution:
             users = list(curated_solution.keys())
-            solutions = list(curated_solution.values())
+            solutions = [entry["solution_pdf"] for entry in curated_solution.values()]  # Extract solution_pdf
+            timestamps = [entry["timestamp"] for entry in curated_solution.values()]  # Extract timestamps
             num_curations = len(users)
 
             for i in range(num_curations):
                 match = re.search(r"n([\d.]+)-p(\d+)\.pdf$", solutions[i])
                 tumor_fraction, ploidy = get_tfx_and_ploidy(sample, sample_directory, match)
                 formatted_solution_name = f"Tumor Fraction {tumor_fraction}, Ploidy {ploidy}"
-                summary.append(f"{sample}\t{formatted_solution_name}\t{users[i]}\t{solutions[i]}")
+                summary.append(f"{sample}\t{formatted_solution_name}\t{users[i]}\t{solutions[i]}\t{timestamps[i]}")
         else:
-            summary.append(f"{sample}\tNone\tNone\tNone")
+            summary.append(f"{sample}\tNone\tNone\tNone\tNone")
 
     return summary
 
@@ -356,7 +356,7 @@ def populate_summary(sample_folders, sample_directory, curated_solutions):
 def generate_summary_file(summary, output_directory, project):
     output_file_path = os.path.join(output_directory, project, "curation_summary.txt")
     with open(output_file_path, 'w') as file:
-        file.write("Sample Name\tCuration Status\tUser\tSolution Filename\n")
+        file.write("Sample Name\tCuration Status\tUser\tSolution Filename\tCuration Timestamp\n")
         for line in summary:
             file.write(line + "\n")
     
