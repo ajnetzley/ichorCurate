@@ -15,7 +15,6 @@ import streamlit as st
 from subpages.curation import display as curation_display
 from subpages.tracker_dashboard import display as tracker_dashboard_display
 from subpages.login import display as login_display
-from subpages.folder_selection import display as folder_selection_display
 from subpages.projects_overview import display as projects_overview_display
 from src.utils import *
 
@@ -39,10 +38,6 @@ if not st.session_state.logged_in:
 # Redirect the user to the projects overview page if they are logged in and have not selected a project
 elif ("selected_project" not in st.session_state or st.session_state.selected_project is None) and st.session_state.logged_in == True:
     projects_overview_display()
-
-# Redirect the user to the folder selection page if they have not selected an output path
-elif ("output_path" not in st.session_state or st.session_state.output_path is None) and st.session_state.logged_in == True:
-    folder_selection_display()
 
 else:
     # Initialize curated solutions in session state if it doesn't exist
@@ -73,16 +68,6 @@ else:
         if st.sidebar.button("Select New Project"):
             st.session_state.selected_project = None
             st.session_state.selected_folder = None
-            #Remap the user to the Tracker Dashboard to start
-            st.session_state.page = "Tracker Dashboard"
-            st.rerun()
-
-    # Output Path Reselection
-    if st.session_state.output_path:
-        st.sidebar.subheader("Output Path Selection")
-        st.sidebar.write(f"Your output path is {st.session_state.output_path}.")
-        if st.sidebar.button("Select New Output Path"):
-            st.session_state.output_path = None
             #Remap the user to the Tracker Dashboard to start
             st.session_state.page = "Tracker Dashboard"
             st.rerun()
