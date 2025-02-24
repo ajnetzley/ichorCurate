@@ -17,6 +17,7 @@ import shutil
 import math
 import datetime
 import yaml
+import stat
 
 ###########################
 ### project_overview.py ###
@@ -240,10 +241,18 @@ def export(sample, base_sample_directory, output_directory, project, solution = 
             if solution in file:
                 shutil.copy(os.path.join(root, file), os.path.join(output_directory, project, sample))
 
+                # Set permissions so copied files can be modified
+                os.chmod(os.path.join(output_directory, project, sample, file), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
         #Copy over the rest of the data for that solution
         for directory in dirs:
             if solution.replace("-", "_") in directory:
                 shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, project, sample), directory))
+
+                # Set permissions for all files in the copied directory
+                for dir_root, _, dir_files in os.walk(os.path.join(output_directory, project, sample, directory)):
+                    for file in dir_files:
+                        os.chmod(os.path.join(dir_root, file), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
 
 # # Function to export the curated solution (NESTED VERSION)
 # def export(sample, base_sample_directory, output_directory, solution = "optimal"):
