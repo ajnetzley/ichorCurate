@@ -365,7 +365,7 @@ def generate_summary_file(summary, output_directory, project):
 def export_all(sample_folders, curated_solutions, sample_directory, output_directory, project, curated_only=False):
     for sample in sample_folders:
         if sample in curated_solutions:
-            for user, solution in curated_solutions[sample].items():
-                export(sample, sample_directory, output_directory, project, solution[-11:-4])
+            solutions = [entry["solution_pdf"] for entry in curated_solutions[sample].values()]
+            export(sample, sample_directory, output_directory, project, solutions[-1][-11:-4]) # Extract the last solution
         elif not curated_only:
             export(sample, sample_directory, output_directory, project)
