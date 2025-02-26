@@ -1,5 +1,12 @@
 """
-Authentication module
+ldap3_auth.py
+v1.0.0, 2/12/2025
+Branch: fredhutch-deployment
+Author: Dan Tenenbaum, scicomp@fredhutch.org
+Maintainer: Alexander Netzley, anetzley@fredhutch.org
+Scientific Computing, Fred Hutchinson Cancer Research Center
+
+This module provides the logic for checking user authentication within the Fred Hutch network.
 """
 import ldap3
 from ldap3.core.exceptions import LDAPInvalidCredentialsResult

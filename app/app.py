@@ -1,6 +1,7 @@
 """
 app.py
-v0.2.0, 1/15/2025
+v1.0.0, 2/12/2025
+Branch: fredhutch-deployment
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
@@ -11,10 +12,10 @@ This module provides the wrapper function for running the ichorCurate app.
 import streamlit as st
 
 # Import user modules
-from pages.curation import display as curation_display
-from pages.tracker_dashboard import display as tracker_dashboard_display
-from pages.login import display as login_display
-from pages.folder_selection import display as folder_selection_display
+from subpages.curation import display as curation_display
+from subpages.tracker_dashboard import display as tracker_dashboard_display
+from subpages.login import display as login_display
+from subpages.projects_overview import display as projects_overview_display
 from src.utils import *
 
 # Setting page formats
@@ -22,6 +23,9 @@ st.set_page_config(layout="wide")
 
 # Title of the app
 st.title('ichorCurate')
+
+# Map to backend location
+st.session_state.backend = "/fh/fast/ha_g/user/anetzley/ichorCurate-backend"
 
 # Initialize session for login
 if "logged_in" not in st.session_state:
@@ -31,26 +35,22 @@ if "logged_in" not in st.session_state:
 if not st.session_state.logged_in:
     login_display()
 
-# Redirect the user to the folder selection page if they have not selected a folder
-elif "selected_folder" not in st.session_state or "output_path" not in st.session_state:
-    folder_selection_display()
+# Redirect the user to the projects overview page if they are logged in and have not selected a project
+elif ("selected_project" not in st.session_state or st.session_state.selected_project is None) and st.session_state.logged_in == True:
+    projects_overview_display()
 
 else:
     # Initialize curated solutions in session state if it doesn't exist
-    if "curated_solutions" not in st.session_state:
-        st.session_state.curated_solutions = {}
+    if "curated_solutions" not in st.session_state[st.session_state.selected_project]: 
+        st.session_state[st.session_state.selected_project]["curated_solutions"] = {}
 
     # Initialize visualization state in session state if it doesn't exist
-    if "visualization" not in st.session_state:
-        st.session_state.visualization = {}
+    if "visualization" not in st.session_state[st.session_state.selected_project]:
+        st.session_state[st.session_state.selected_project]["visualization"] = {}
 
     #Direct users to the tracker dashboard unless curation has been specified
     if "page" not in st.session_state:
         st.session_state.page = "Tracker Dashboard"
-
-    # Sidebar navigation with automatic selection
-    st.sidebar.title("Navigation")
-    page = st.sidebar.selectbox("Menu", ["Tracker Dashboard", "Curation"], index=0 if st.session_state.page == "Tracker Dashboard" else 1)
 
     # Logout Button
     if st.sidebar.button("Logout"):
@@ -61,12 +61,24 @@ else:
         st.session_state.page = "Tracker Dashboard"
         st.rerun()
 
-    # Check and update the current page
-    if page != st.session_state.page:
-        st.session_state.page = page  # Sync sidebar selection with session state
+    # Project Reselection
+    if st.session_state.selected_project:
+        st.sidebar.subheader("Project Selection")
+        st.sidebar.write(f"You are currently working on {st.session_state.selected_project}.")
+        if st.sidebar.button("Select New Project"):
+            st.session_state.selected_project = None
+            st.session_state.selected_folder = None
+            #Remap the user to the Tracker Dashboard to start
+            st.session_state.page = "Tracker Dashboard"
+            st.rerun()
 
     # Display the page
-    if st.session_state.page == "Tracker Dashboard":
+    if st.session_state.page == "Tracker Dashboard" and st.session_state.logged_in == True:
         tracker_dashboard_display()
-    elif st.session_state.page == "Curation":
+    elif st.session_state.page == "Curation" and st.session_state.logged_in == True:
+        # Allow users to navigate back without curation
+        if st.sidebar.button("Return to Tracker Dashboard"):
+            st.session_state.page = "Tracker Dashboard"
+            st.rerun()
+
         curation_display()

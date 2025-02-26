@@ -1,6 +1,7 @@
 """
 utils.py
-v0.2.0, 1/15/2025
+v1.0.0, 2/12/2025
+Branch: fredhutch-deployment
 Author: Alexander Netzley, anetzley@fredhutch.org
 Ha Lab, Fred Hutchinson Cancer Research Center
 
@@ -8,12 +9,105 @@ This module provides helper functions for the ichorCurate app.
 """
 # Import packages
 import fitz  # PyMuPDF
-import plotly.express as px
 from PIL import Image
 import re
 import streamlit as st
 import os
 import shutil
+import math
+import datetime
+import yaml
+import stat
+
+###########################
+### project_overview.py ###
+###########################
+# Function to load the YAML config file
+def load_config(config_path):
+    with open(config_path, "r") as file:
+        return yaml.safe_load(file)
+    
+# Function to count the number of samples (example: count files in data_path)
+def count_samples(data_path):
+    return str(math.floor(len(os.listdir(data_path))/4)) if os.path.exists(data_path) else 0
+
+# Function to count curated samples (assumes curated samples are stored in metadata)
+def count_curated_samples(summary_path):
+    if os.path.exists(summary_path):
+        with open(summary_path, "r") as file:
+            lines = file.readlines()
+        curated_samples = set() #only count unqiue samples
+
+        for line in lines[1:]:
+            parts = line.strip().split("\t")
+            sample_name, curation_status, user, solution_filename, timestamp = parts
+            if curation_status != "None":
+                curated_samples.add(sample_name)
+        return str(len(curated_samples)) 
+        
+    return str(0)
+
+# Function to extract the users who have curated samples
+def get_curating_users(summary_path):
+    if os.path.exists(summary_path):
+        with open(summary_path, "r") as file:
+            lines = file.readlines()
+        users = set()
+
+        for line in lines[1:]:
+            parts = line.strip().split("\t")
+            sample_name, curation_status, user, solution_filename, timestamp = parts
+            if curation_status != "None":
+                users.add(user)
+        return ", ".join(users)
+        
+    return ""
+
+# Function to extract the time of the latest update
+def get_latest_update(summary_path):
+    if os.path.exists(summary_path):
+        mod_time = os.path.getmtime(summary_path)
+        return datetime.datetime.fromtimestamp(mod_time)
+    else:
+        return ""
+    
+# Function to load the curated solutions from the metadata file
+def load_curated_solutions(directory, project):
+    summary_file_path = os.path.join(directory, project, "curation_summary.txt")
+    
+    if os.path.exists(summary_file_path):
+        with open(summary_file_path, 'r') as file:
+            lines = file.readlines()[1:]  # Skip header
+
+            for line in lines:
+                parts = line.strip().split("\t")
+                if len(parts) == 5 and parts[1] != "None":
+                    sample, formatted_solution_name, user, curated_solution_filename, timestamp = parts
+
+                    # Read the existing summary into the session state
+                    if "curated_solutions" not in st.session_state[project]:
+                        st.session_state[project]["curated_solutions"] = {}
+
+                    # Populate curated_solutions state with existing solutions
+                    if sample not in st.session_state[project]["curated_solutions"]:
+                        st.session_state[project]["curated_solutions"][sample] = {}
+
+                    st.session_state[project]["curated_solutions"][sample][user] = {"solution_pdf": curated_solution_filename, "timestamp": timestamp}
+
+# Function to ensure filepath starts and ends with a '/'
+def format_filepath(filepath):
+    if filepath:
+        # Add a leading and trailing "/" if not present
+        if filepath[-1] != "/":
+            filepath += "/"
+        if filepath[0] != "/":
+            filepath = "/" + filepath
+    return filepath
+
+
+###################
+### curation.py ###
+###################
 
 # Function to find the default solution and sort the genome wide pdfs so the optimal is listed first
 def promote_default_pdf(genome_wide_directory, genome_wide_pdf_files):
@@ -120,15 +214,30 @@ def display_chromosome_plots(selected_chromosomes, genome_wide_directory, soluti
                 st.write(f"Chromosome {extract_chromosome_number(pdf_file)} PDF not found.")
 
 
-# Function to export the curated solution (UNNESTED VERSION)
-def export(sample, base_sample_directory, output_directory, solution = "optimal"):
+############################
+### tracker_dashboard.py ###
+############################
+
+# Function to extract and sort the sample folders from the filepath
+def get_folders(directory):
+    return sorted(
+        (entry.name for entry in os.scandir(directory) if entry.is_dir())
+    )
+    
+# Function to generate the output folder locations, prior to writing to them
+def generate_output_folders(output_directory, project):
     # Create the output directory if it doesn't exist # TODO I feel like this won't work if the output path is relative vs gloabl, need to double check this
     os.makedirs(output_directory, exist_ok=True) # TODO update to a manual entry to specify output location
 
-    #Overwrite existing soltuion if it exists
-    if os.path.exists(os.path.join(output_directory, sample)):
-        shutil.rmtree(os.path.join(output_directory, sample))
-    os.makedirs(os.path.join(output_directory, sample), exist_ok=True)
+    # Create the output directory for this project
+    os.makedirs(os.path.join(output_directory, project), exist_ok=True)
+
+# Function to export the curated solution (UNNESTED VERSION)
+def export(sample, base_sample_directory, output_directory, project, solution = "optimal"):
+    #Overwrite existing solution if it exists
+    if os.path.exists(os.path.join(output_directory, project, sample)):
+        shutil.rmtree(os.path.join(output_directory, project, sample))
+    os.makedirs(os.path.join(output_directory, project, sample), exist_ok=True)
 
     # Copy the curated solution to the output directory
     for root, dirs, files in os.walk(base_sample_directory + sample):
@@ -140,12 +249,19 @@ def export(sample, base_sample_directory, output_directory, solution = "optimal"
             # or the string "optimal". Here we check through all the files in 
             # the directory to find the one that matches the solution name
             if solution in file:
-                shutil.copy(os.path.join(root, file), os.path.join(output_directory, sample))
+                shutil.copy(os.path.join(root, file), os.path.join(output_directory, project, sample))
 
         #Copy over the rest of the data for that solution
         for directory in dirs:
             if solution.replace("-", "_") in directory:
-                shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, sample), directory))
+                shutil.copytree(os.path.join(root, directory), os.path.join(os.path.join(output_directory, project, sample), directory))
+
+    # Set permissions for all files and folders in the copied directory
+    for dir_root, dirs, dir_files in os.walk(os.path.join(output_directory, project, sample)):
+        for dir in dirs:
+            os.chmod(os.path.join(dir_root, dir), stat.S_IRWXU | stat.S_IRWXG) # 770 permissions
+        for file in dir_files:
+            os.chmod(os.path.join(dir_root, file), stat.S_IRWXU | stat.S_IRWXG) # 770 permissions
 
 # # Function to export the curated solution (NESTED VERSION)
 # def export(sample, base_sample_directory, output_directory, solution = "optimal"):
@@ -214,49 +330,41 @@ def get_tfx_and_ploidy(sample, sample_directory, match):
 # Function to collect summary information
 def populate_summary(sample_folders, sample_directory, curated_solutions):
     summary = []
-    # Populate the summary list
+
     for sample in sample_folders:
-        # Check if the sample has a curated solution
-        curated_solution = (
-            curated_solutions[sample]
-            if sample in curated_solutions
-            else None
-        )
+        # Get curated solution from session state
+        curated_solution = curated_solutions.get(sample, None)
 
-        # Extract the users and curated solutions, if curation has been performed
         if curated_solution:
-            users = list(curated_solutions[sample].keys())
-            solutions = list((curated_solutions[sample].values()))
+            users = list(curated_solution.keys())
+            solutions = [entry["solution_pdf"] for entry in curated_solution.values()]  # Extract solution_pdf
+            timestamps = [entry["timestamp"] for entry in curated_solution.values()]  # Extract timestamps
             num_curations = len(users)
-        else:
-            num_curations = 0
 
-        # Add to summary
-        if curated_solution:
             for i in range(num_curations):
                 match = re.search(r"n([\d.]+)-p(\d+)\.pdf$", solutions[i])
                 tumor_fraction, ploidy = get_tfx_and_ploidy(sample, sample_directory, match)
                 formatted_solution_name = f"Tumor Fraction {tumor_fraction}, Ploidy {ploidy}"
-                summary.append(f"Sample: {sample}, Curated Solution: {formatted_solution_name}, User: {users[i]}")
+                summary.append(f"{sample}\t{formatted_solution_name}\t{users[i]}\t{solutions[i]}\t{timestamps[i]}")
         else:
-            summary.append(f"Sample: {sample}, Curated Solution: None, User: None")
-    
+            summary.append(f"{sample}\tNone\tNone\tNone\tNone")
+
     return summary
 
 # Function to generate a summary file of the curated solutions
-def generate_summary_file(summary, output_directory):
-    output_file_path = os.path.join(output_directory, "curation_summary.txt")
+def generate_summary_file(summary, output_directory, project):
+    output_file_path = os.path.join(output_directory, project, "curation_summary.txt")
     with open(output_file_path, 'w') as file:
-        file.write("Sample Name\tCuration Status\tUser\n")
+        file.write("Sample Name\tCuration Status\tUser\tSolution Filename\tCuration Timestamp\n")
         for line in summary:
             file.write(line + "\n")
     
 
 # Function to export all samples
-def export_all(sample_folders, curated_solutions, sample_directory, output_directory, curated_only=False):
+def export_all(sample_folders, curated_solutions, sample_directory, output_directory, project, curated_only=False):
     for sample in sample_folders:
         if sample in curated_solutions:
-            for user, solution in curated_solutions[sample].items():
-                export(sample, sample_directory, output_directory, solution[-11:-4])
+            solutions = [entry["solution_pdf"] for entry in curated_solutions[sample].values()]
+            export(sample, sample_directory, output_directory, project, solutions[-1][-11:-4]) # Extract the last solution
         elif not curated_only:
-            export(sample, sample_directory, output_directory)
+            export(sample, sample_directory, output_directory, project)
