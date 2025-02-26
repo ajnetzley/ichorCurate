@@ -138,7 +138,7 @@ def display():
 
                 for reference_sample in options:
                     reference_sample, username = reference_sample.split(", ")
-                    solution_path = os.path.join(st.session_state.selected_folder, reference_sample, st.session_state[project]["curated_solutions"][reference_sample][username])
+                    solution_path = os.path.join(st.session_state.selected_folder, reference_sample, st.session_state[project]["curated_solutions"][reference_sample][username]["solution_pdf"])
                     solution_image = get_pdf_first_page_image(solution_path)
                     st.image(solution_image, use_container_width=True)
 
