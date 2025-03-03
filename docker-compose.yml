@@ -27,4 +27,4 @@ volumes:
     driver_opts:
       type: nfs
       device: "${PERSISTENT_VOLUME_PATH}"
-      o: addr=${FAST_SERVER}vers=3,rw
+      o: addr=${FAST_SERVER},vers=3,rw
