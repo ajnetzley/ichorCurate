@@ -22,9 +22,9 @@ networks:
     external: true
 
 volumes:
-  seacr:
+  ichorcurate:
     driver: local
     driver_opts:
       type: nfs
       device: "${PERSISTENT_VOLUME_PATH}"
-      o: addr=${FAST_SERVER},rw
+      o: addr=${FAST_SERVER}vers=3,rw
