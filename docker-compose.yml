@@ -1,0 +1,30 @@
+version: '3.3'
+services:
+  ichorcurate:
+    image: sc-registry.fredhutch.org/ichorcurate:latest
+    volumes: 
+      - ichorcurate:/fh/fast/ha_g
+    networks:
+      - sc-swarm-net
+    deploy:
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.ichorcurate.rule=Host(`ichorcurate.fredhutch.org`)"
+        - "traefik.http.routers.ichorcurate-secured.rule=Host(`ichorcurate.fredhutch.org`)"
+        - "traefik.http.routers.ichorcurate.entrypoints=web,web-secured"
+        - "traefik.http.services.ichorcurate.loadbalancer.server.port=8501" # it seems you always need to give traefik a port so it 'notices' the service
+        - "traefik.http.routers.ichorcurate.tls=true"
+
+networks:
+  sc-swarm-net:
+    external: true
+
+volumes:
+  seacr:
+    driver: local
+    driver_opts:
+      type: nfs
+      device: "${PERSISTENT_VOLUME_PATH}"
+      o: addr=${FAST_SERVER},rw
