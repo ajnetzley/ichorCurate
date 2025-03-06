@@ -259,9 +259,9 @@ def export(sample, base_sample_directory, output_directory, project, solution = 
     # Set permissions for all files and folders in the copied directory
     for dir_root, dirs, dir_files in os.walk(os.path.join(output_directory, project, sample)):
         for dir in dirs:
-            os.chmod(os.path.join(dir_root, dir), stat.S_IRWXU | stat.S_IRWXG) # 770 permissions
+            os.chmod(os.path.join(dir_root, dir), stat.S_IRWXU | stat.S_IRWXG | stat.S_ISGID) # 770 permissions
         for file in dir_files:
-            os.chmod(os.path.join(dir_root, file), stat.S_IRWXU | stat.S_IRWXG) # 770 permissions
+            os.chmod(os.path.join(dir_root, file), stat.S_IRWXU | stat.S_IRWXG | stat.S_ISGID) # 770 permissions
 
 # # Function to export the curated solution (NESTED VERSION)
 # def export(sample, base_sample_directory, output_directory, solution = "optimal"):
