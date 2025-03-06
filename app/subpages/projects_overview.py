@@ -17,7 +17,7 @@ import os
 from src.utils import load_config, count_samples, count_curated_samples, get_curating_users, get_latest_update, load_curated_solutions, format_filepath, generate_output_folders
 
 def display():
-    st.title("Projects Overview")
+    st.title("Projects Overview -- Deployed Version")
     config_path = os.path.join(st.session_state.backend, "config.yaml")
 
     config = load_config(config_path)
