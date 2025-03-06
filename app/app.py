@@ -8,6 +8,10 @@ Ha Lab, Fred Hutchinson Cancer Research Center
 This module provides the wrapper function for running the ichorCurate app.
 """
 
+import os
+# Set the umask to ensure files and directories are created with 770 permissions
+os.umask(0o007)
+
 # Import packages
 import streamlit as st
 
