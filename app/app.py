@@ -15,6 +15,7 @@ import streamlit as st
 from subpages.curation import display as curation_display
 from subpages.tracker_dashboard import display as tracker_dashboard_display
 from subpages.login import display as login_display
+from subpages.backend_selection import display as backend_selection_display
 from subpages.projects_overview import display as projects_overview_display
 from src.utils import *
 
@@ -24,8 +25,9 @@ st.set_page_config(layout="wide")
 # Title of the app
 st.title('ichorCurate')
 
-# Map to backend location
-st.session_state.backend = "/fh/fast/ha_g/user/anetzley/ichorCurate-backend"
+# Load backend path when the app starts
+if "backend" not in st.session_state:
+    st.session_state.backend = load_backend_path()
 
 # Initialize session for login
 if "logged_in" not in st.session_state:
@@ -35,9 +37,19 @@ if "logged_in" not in st.session_state:
 if not st.session_state.logged_in:
     login_display()
 
+# Redirect the user to the backend selection page if the backend path is not set
+elif ("backend" not in st.session_state or st.session_state.backend is None):
+    backend_selection_display()
+
 # Redirect the user to the projects overview page if they are logged in and have not selected a project
 elif ("selected_project" not in st.session_state or st.session_state.selected_project is None) and st.session_state.logged_in == True:
     projects_overview_display()
+
+    # New backend button
+    if st.sidebar.button("Connect to New Backend"):
+        st.session_state.backend = None
+        st.rerun()
+    st.sidebar.write(f"Connected to {st.session_state.backend}.")
 
 else:
     # Initialize curated solutions in session state if it doesn't exist
@@ -60,6 +72,7 @@ else:
         #Remap the user to the Tracker Dashboard to start
         st.session_state.page = "Tracker Dashboard"
         st.rerun()
+    st.sidebar.write(f"Logged in as {st.session_state.username}.")
 
     # Project Reselection
     if st.session_state.selected_project:

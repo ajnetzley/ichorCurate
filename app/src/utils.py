@@ -19,13 +19,79 @@ import datetime
 import yaml
 import stat
 
+############################
+### backend_selection.py ###
+############################
+# Function to save the backend folder path
+def save_backend_path(folder_path):
+    with open("config.yaml", "w") as f:
+        yaml.dump({"backend_path": folder_path}, f, default_flow_style=False)
+
+# Function to load the backend folder path
+def load_backend_path():
+    if os.path.exists("config.yaml"):
+        with open("config.yaml", "r") as f:
+            config = yaml.safe_load(f)
+            return config.get("backend_path", None)  # Return None if not found
+    return None  # Return None if config file doesn't exist
+
+# Function to ensure a backend filepath is a valid backend
+def is_valid_backend(backend_path):
+    config_path = os.path.join(backend_path, "config.yaml")
+    
+    # Check that the backend folder exists
+    if not os.path.exists(backend_path) or not os.path.isdir(backend_path):
+        return False, "Folder does not exist"
+    # Check that the config file exists
+    if not os.path.exists(config_path):
+        return False, "Config file does not exist"
+
+    try:
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+
+        # Check that the config file has the required keys
+        if not isinstance(config, dict) or "projects" not in config:
+            return False, "Config file does not have correct formatting"
+
+    except Exception as e:
+        return False, f"Error reading 'config.yaml': {e}"
+
+    return True, None  # Folder is valid
+
+# Function to initialize a new backend path
+def initialize_backend_folder(folder_path):
+    os.makedirs(folder_path, exist_ok=True)  # Create the folder if it doesn’t exist
+    config_path = os.path.join(folder_path, "config.yaml")
+    default_config = {"projects": {}}  # Initialize with a default structure
+
+    with open(config_path, "w") as f:
+        yaml.dump(default_config, f, default_flow_style=False)
+
 ###########################
 ### project_overview.py ###
 ###########################
 # Function to load the YAML config file
 def load_config(config_path):
-    with open(config_path, "r") as file:
-        return yaml.safe_load(file)
+    try:
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"Config file not found: {config_path}")
+
+        with open(config_path, "r") as file:
+            return yaml.safe_load(file) or {}  # Return empty dict if file is empty or invalid
+
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        return {}  # Return an empty dictionary if the file is missing
+
+    except yaml.YAMLError as e:
+        print(f"Error reading YAML file {config_path}: {e}")
+        return {}  # Return an empty dictionary if YAML is malformed
+
+    except Exception as e:
+        print(f"Unexpected error loading config: {e}")
+        return {}  # Catch any other unexpected errors
+
     
 # Function to count the number of samples (example: count files in data_path)
 def count_samples(data_path):

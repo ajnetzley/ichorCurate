@@ -44,7 +44,7 @@ def display():
         st.write("**Delete Project**")
 
     # Display a row for each project
-    for project_name, project_info in config["projects"].items():
+    for project_name, project_info in (config.get("projects") or {}).items():
         #Instantiate a separate session state for each project and load in the existing solutions from the summary
         if project_name not in st.session_state:
             st.session_state[project_name] = {}
