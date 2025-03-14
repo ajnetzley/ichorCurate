@@ -28,7 +28,7 @@ After navigating to the directory where you cloned the repo and activating the e
 streamlit run app/app.py
 ```
 
-Then, copy and paste either of Local, Network, or External URL into your browser to enter the app.
+Then, copy and paste either the Local, Network, or External URL into your browser to enter the app.
 
 ### Using The App
 
