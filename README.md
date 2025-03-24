@@ -45,3 +45,6 @@ Back on the Tracker Dashboard, you can select the "export" button to export the 
 ├── LICENSE                                         # License documentation
 └── requirements.txt                                # List of dependencies to run the app
 ```
+
+## Development and Deployment Repo Fork Organization (For Gavin Ha Lab Internals)
+The main repository (the one in ajnetzley) consists of two branches, "external" and "fredhutch-deployment". There are also forked versions of this repo in multiple locations. The "fredhutch-deployment" branch is forked into the FredHutch github organization, located [here](https://github.com/FredHutch/ichorCurate). This is the version that is actually deployed, so if you want to make changes to the deployed version, they must be either directly made to the FredHutch fork, or made to ajnetzley and then the forks synced. The "external" branch is forked into the GavinHaLab github organization, located [here](https://github.com/GavinHaLab/ichorCurate). This is the external facing version that we will point users from external organizations towards to clone and create their own version.
